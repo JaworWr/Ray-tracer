@@ -4,26 +4,30 @@ import Data.Word
 
 data Vector = Vector Double Double Double deriving (Show, Eq)
 
-add :: Vector -> Vector -> Vector
-add (Vector x1 y1 z1) (Vector x2 y2 z2) = Vector (x1 + x2) (y1 + y2) (z1 + z2)
+infixl 6 +.
+(+.) :: Vector -> Vector -> Vector
+(+.) (Vector x1 y1 z1) (Vector x2 y2 z2) = Vector (x1 + x2) (y1 + y2) (z1 + z2)
 
-sub :: Vector -> Vector -> Vector
-sub (Vector x1 y1 z1) (Vector x2 y2 z2) = Vector (x1 - x2) (y1 - y2) (z1 - z2)
+infixl 6 -.
+(-.) :: Vector -> Vector -> Vector
+(-.) (Vector x1 y1 z1) (Vector x2 y2 z2) = Vector (x1 - x2) (y1 - y2) (z1 - z2)
 
-mult :: Double -> Vector -> Vector
-mult t (Vector x y z) = Vector (t*x) (t*y) (t*z)
+infixl 7 `times`
+times :: Double -> Vector -> Vector
+times t (Vector x y z) = Vector (t*x) (t*y) (t*z)
 
+infixl 7 `dot`
 dot :: Vector -> Vector -> Double
 dot (Vector x1 y1 z1) (Vector x2 y2 z2) = x1*x2 + y1*y2 + z1*z2
 
 sqVecLen :: Vector -> Double
-sqVecLen v = dot v v
+sqVecLen v = v `dot` v
 
 vecLen :: Vector -> Double
 vecLen = sqrt . sqVecLen
 
 normalize :: Vector -> Vector
-normalize v = mult (1 / vecLen v) v
+normalize v = (1 / vecLen v) `times` v
 
 data Color =
     Greyscale Word8 |

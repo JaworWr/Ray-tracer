@@ -1,6 +1,11 @@
 module Scene where
 
-import Geometry
 import DataTypes
+import Geometry
 
-data Object = Object Geometry Color
+data Surface =
+    Diffusive Color |
+    Reflective
+    deriving (Eq, Show)
+
+data Object = Object Geometry Surface deriving (Eq, Show)
