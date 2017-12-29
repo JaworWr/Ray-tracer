@@ -23,17 +23,17 @@ closestIntersect r = minIntersect
         minIntersect xs =
             Just $ foldl1 (\acc x -> if fst x < fst acc then x else acc) xs
 
-traceRay :: LightSource -> Ray -> [Object] -> Color
-traceRay l r xs = maybe black calcColor m where
+traceRay :: LightSource -> [Object] -> Ray -> Color
+traceRay l xs r = maybe black calcColor m where
     m = closestIntersect r xs
     calcColor (t, o) = let x = getRayPoint r t in
         case surface o of
             Diffusive c ->
-                traceShadow l (reflect (geometry o) x r) xs `cMult` c
+                traceShadow l xs (reflect (geometry o) x r) `cMult` c
             _ -> error "Not yet implemented"
 
-traceShadow :: LightSource -> Ray -> [Object] -> Double
-traceShadow l r xs =  maybe (getLight l r) calcLight m where
+traceShadow :: LightSource -> [Object] -> Ray -> Double
+traceShadow l xs r =  maybe (getLight l r) calcLight m where
     m = closestIntersect r xs
     calcLight (t, o) = let x = getRayPoint r t in
         case surface o of
@@ -55,8 +55,13 @@ makeRays s = map makePixelRay pixelVectors where
         | y < pxHeight s = makePixelVectors 0 (y+1)
         | otherwise = []
 
+render :: Scene -> Image
+render s = Image (pxWidth s) (pxHeight s) $
+    map (traceRay (light s) (objects s)) (makeRays s)
+
 data Scene = Scene {
     objects :: [Object],
+    light :: LightSource,
     pxWidth :: Int,
     pxHeight :: Int,
     scrWidth :: Double,
