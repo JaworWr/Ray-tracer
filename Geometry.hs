@@ -2,6 +2,9 @@ module Geometry where
 
 import DataTypes
 
+eps :: Double
+eps = 0.000001
+
 data Ray = Ray { origin :: Vector, dir :: Vector } deriving (Show, Eq)
 
 makeRay :: Vector -> Vector -> Ray
@@ -28,15 +31,25 @@ normalVector :: Geometry -> Vector -> Vector
 normalVector (Sphere c _) x = normalize (x -. c)
 normalVector (Plane _ n) _ = n
 
-intersect :: Geometry -> Ray -> [Double]
-intersect (Sphere c r) (Ray o d)
-    | delta < 0 = []
+intersect :: Ray -> Geometry -> [Double]
+intersect (Ray o d) (Sphere c r)
+    | delta < eps = []
     | otherwise = [-doc - sqrt delta, -doc + sqrt delta]
     where
         doc = d `dot` (o -. c)
         delta = doc * doc - sqVecLen (o -. c) + r * r
-intersect (Plane po pd) (Ray o d) =
+intersect (Ray o d) (Plane po pd) =
     [((po -. o) `dot` pd) / (d `dot` pd)]
 
 reflect :: Geometry -> Vector -> Ray -> Ray
 reflect g x = reflectRay x (normalVector g x)
+
+data LightSource =
+    Uniform Vector
+    deriving (Eq, Show)
+
+makeUniform :: Vector -> LightSource
+makeUniform = Uniform . normalize
+
+getLight :: LightSource -> Ray -> Double
+getLight (Uniform i) (Ray _ d) = max 0 (i `dot` d)

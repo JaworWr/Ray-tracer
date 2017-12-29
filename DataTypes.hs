@@ -30,10 +30,19 @@ normalize :: Vector -> Vector
 normalize v = (1 / vecLen v) `times` v
 
 data Color =
-    Greyscale Word8 |
-    RGB Word8 Word8 Word8
+    Greyscale Double |
+    RGB Double Double Double
     deriving (Eq, Show)
 
 toWordList :: Color -> [Word8]
-toWordList (Greyscale c) = [c, c, c, 0xff]
-toWordList (RGB r g b) = [r, g, b, 0xff]
+toWordList = map round . toDoubleList where
+    toDoubleList (Greyscale c) = [c, c, c, 1]
+    toDoubleList (RGB r g b) = [r, g, b, 1]
+
+infixl 7 `cMult`
+cMult :: Double -> Color -> Color
+cMult t (Greyscale c) = Greyscale (t * c)
+cMult t (RGB r g b) = RGB (t * r) (t * g) (t * b)
+
+black :: Color
+black = RGB 0 0 0
