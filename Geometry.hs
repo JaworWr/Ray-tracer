@@ -3,7 +3,7 @@ module Geometry where
 import DataTypes
 
 eps :: Double
-eps = 0.000001
+eps = 0.00000001
 
 data Ray = Ray { origin :: Vector, dir :: Vector } deriving (Show, Eq)
 
@@ -33,7 +33,7 @@ normalVector (Plane _ n) _ = n
 
 intersect :: Ray -> Geometry -> [Double]
 intersect (Ray o d) (Sphere c r)
-    | delta < eps = []
+    | delta < 0 = []
     | otherwise = [-doc - sqrt delta, -doc + sqrt delta]
     where
         doc = d `dot` (o -. c)
@@ -49,7 +49,7 @@ data LightSource =
     deriving (Eq, Show)
 
 makeUniform :: Vector -> LightSource
-makeUniform = Uniform . normalize
+makeUniform = Uniform . normalize . times (-1)
 
 getLight :: LightSource -> Ray -> Double
-getLight (Uniform i) (Ray _ d) = max 0 (i `dot` d)
+getLight (Uniform i) (Ray _ d) = max 0 $ i `dot` d -- let c = max 0 $ i `dot` d in trace (show c ++ ", " ++ show (i `dot` d)) c

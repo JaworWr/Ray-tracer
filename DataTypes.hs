@@ -35,7 +35,7 @@ data Color =
     deriving (Eq, Show)
 
 toWordList :: Color -> [Word8]
-toWordList = map round . toDoubleList where
+toWordList = map (round . (* 255)) . toDoubleList where
     toDoubleList (Greyscale c) = [c, c, c, 1]
     toDoubleList (RGB r g b) = [r, g, b, 1]
 

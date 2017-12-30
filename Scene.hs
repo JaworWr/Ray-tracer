@@ -15,7 +15,7 @@ data Object = Object {
 
 closestIntersect :: Ray -> [Object] -> Maybe (Double, Object)
 closestIntersect r = minIntersect
-    . filter ((> 0) . fst)
+    . filter ((> eps) . fst)
     . concatMap pairWithIntersects
     where
         pairWithIntersects o = map (\x -> (x, o)) $ intersect r $ geometry o
@@ -29,11 +29,11 @@ traceRay l xs r = maybe black calcColor m where
     calcColor (t, o) = let x = getRayPoint r t in
         case surface o of
             Diffusive c ->
-                traceShadow l xs (reflect (geometry o) x r) `cMult` c
+                traceShadow l xs (makeRay x (normalVector (geometry o) x)) `cMult` c
             _ -> error "Not yet implemented"
 
 traceShadow :: LightSource -> [Object] -> Ray -> Double
-traceShadow l xs r =  maybe (getLight l r) calcLight m where
+traceShadow l xs r = maybe (getLight l r) calcLight m where
     m = closestIntersect r xs
     calcLight (t, o) = let x = getRayPoint r t in
         case surface o of
