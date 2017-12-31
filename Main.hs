@@ -5,16 +5,26 @@ import SceneParser
 import Scene
 import qualified Data.ByteString as BStr
 import Codec.BMP
+import System.Environment
+import System.IO.Error
+import Data.List
 
 imageToBmp :: Image -> BMP
 imageToBmp (Image w h c) =
     packRGBA32ToBMP (w+1) (h+1). BStr.pack $ concatMap toWordList c
 
+changeExt :: String -> String
+changeExt s = case dropWhileEnd (/= '.') s of
+    [] -> s ++ ".bmp"
+    s' -> s' ++ "bmp"
+
 main :: IO ()
 main = do
-    scene <- parse
-    let img = render scene
-    print $ imWidth img
-    print $ imHeight img
-    print $ length $ imPixels img
-    writeBMP "output.bmp" $ imageToBmp img
+    args <- getArgs
+    if null args
+    then putStrLn "No input file specified"
+    else tryIOError (readFile $ head args) >>=
+        either print
+            (either putStrLn
+                (writeBMP (changeExt $ head args) . imageToBmp . render)
+                . parse)

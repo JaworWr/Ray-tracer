@@ -1,4 +1,4 @@
-module SceneParser where
+module SceneParser (parse) where
 
 import Scene
 import Geometry
@@ -6,6 +6,9 @@ import DataTypes
 
 import Data.Char
 import Data.List
+
+parse :: String -> Either String Scene
+parse = parseScene . getHeader . splitInput
 
 missingString :: String -> String
 missingString s = "Missing arguments for \'" ++ s ++ "\'"
@@ -80,12 +83,5 @@ parseScene (xs, o) = Scene <$>
     parseProp parseInt "imwidth" xs <*>
     parseProp parseInt "imheight" xs <*>
     parseProp parseDouble "scrwidth" xs <*>
-    parseProp parseDouble "scrimheight" xs <*>
+    parseProp parseDouble "scrheight" xs <*>
     parseProp parseDouble "depth" xs
-
-parse :: IO Scene
-parse = return $ Scene
-    [Object (makeSphere (Vector 0 0 20) 20) (Diffusive $ RGB 1 0.5 0),
-    Object (makePlane (Vector 0 (200) 0) (Vector 0 (-1) (-1))) (Diffusive $ RGB 0 0 1)]
-    (makeDirectional $ Vector 0 (1) 1)
-    400 400 20 20 10
