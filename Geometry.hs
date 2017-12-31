@@ -45,14 +45,14 @@ reflect :: Geometry -> Vector -> Ray -> Ray
 reflect g x = reflectRay x (normalVector g x)
 
 data LightSource =
-    Uniform Vector
+    Directional Vector
     deriving (Eq, Show)
 
-makeUniform :: Vector -> LightSource
-makeUniform = Uniform . normalize . times (-1)
+makeDirectional :: Vector -> LightSource
+makeDirectional = Directional . normalize . times (-1)
 
 makeShadowRay :: LightSource -> Vector -> Ray
-makeShadowRay (Uniform i) x = makeRay x i
+makeShadowRay (Directional i) x = makeRay x i
 
 getLight :: LightSource -> Vector -> Double
-getLight (Uniform i) d = max 0 $ i `dot` d
+getLight (Directional i) d = max 0 $ i `dot` d
