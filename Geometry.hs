@@ -51,5 +51,8 @@ data LightSource =
 makeUniform :: Vector -> LightSource
 makeUniform = Uniform . normalize . times (-1)
 
-getLight :: LightSource -> Ray -> Double
-getLight (Uniform i) (Ray _ d) = max 0 $ i `dot` d -- let c = max 0 $ i `dot` d in trace (show c ++ ", " ++ show (i `dot` d)) c
+makeShadowRay :: LightSource -> Vector -> Ray
+makeShadowRay (Uniform i) x = makeRay x i
+
+getLight :: LightSource -> Vector -> Double
+getLight (Uniform i) d = max 0 $ i `dot` d

@@ -29,20 +29,21 @@ traceRay l xs r = maybe black calcColor m where
     calcColor (t, o) = let x = getRayPoint r t in
         case surface o of
             Diffusive c ->
-                traceShadow l xs (makeRay x (normalVector (geometry o) x)) `cMult` c
+                traceShadow l (normalVector (geometry o) x) xs
+                    (makeShadowRay l x) `cMult` c
             _ -> error "Not yet implemented"
 
-traceShadow :: LightSource -> [Object] -> Ray -> Double
-traceShadow l xs r = maybe (getLight l r) calcLight m where
+traceShadow :: LightSource -> Vector -> [Object] -> Ray -> Double
+traceShadow l n xs r = maybe (getLight l n) calcLight m where
     m = closestIntersect r xs
     calcLight (t, o) = let x = getRayPoint r t in
         case surface o of
-            Diffusive c -> 0
+            Diffusive _ -> 0
             _ -> error "Not yet implemented"
 
 makeRays :: Scene -> [Ray]
 makeRays s = map makePixelRay pixelVectors where
-    makePixelRay = makeRay (Vector 0 0 0)
+    makePixelRay = makeRay (Vector 0 0 (- depth s))
     diffX = scrWidth s / fromIntegral (pxWidth s)
     diffY = scrHeight s / fromIntegral (pxHeight s)
     shiftX x = fromIntegral (x - (pxHeight s `div` 2)) * diffX
