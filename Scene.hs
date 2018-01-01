@@ -52,8 +52,8 @@ makeRays s = map makePixelRay pixelVectors where
     makePixelVectors x y =
         Vector (shiftX x) (shiftY y) (depth s) : pixelVectorsNext x y
     pixelVectorsNext x y
-        | x < pxWidth s = makePixelVectors (x+1) y
-        | y < pxHeight s = makePixelVectors 0 (y+1)
+        | x < pxWidth s - 1 = makePixelVectors (x+1) y
+        | y < pxHeight s -1 = makePixelVectors 0 (y+1)
         | otherwise = []
 
 render :: Scene -> Image

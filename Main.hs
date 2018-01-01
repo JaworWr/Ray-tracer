@@ -11,7 +11,7 @@ import Data.List
 
 imageToBmp :: Image -> BMP
 imageToBmp (Image w h c) =
-    packRGBA32ToBMP (w+1) (h+1). BStr.pack $ concatMap toWordList c
+    packRGBA32ToBMP w h . BStr.pack $ concatMap toWordList c
 
 changeExt :: String -> String
 changeExt s = case dropWhileEnd (/= '.') s of
