@@ -5,11 +5,15 @@ import DataTypes
 eps :: Double
 eps = 0.00000001
 
+-- Typ danych reprezentujący promień dany w postaci x + t*d
+-- gdzie x to źródło promienia a d to wektor normalny wskazujący jego kierunek
 data Ray = Ray { origin :: Vector, dir :: Vector } deriving (Show, Eq)
 
+-- funkcja tworząca promienie
 makeRay :: Vector -> Vector -> Ray
 makeRay o d = Ray o (normalize d)
 
+-- funkcja do obliczania punktów leżących na promieniu
 getRayPoint :: Ray -> Double -> Vector
 getRayPoint (Ray o d) t = o +. t `times` d
 

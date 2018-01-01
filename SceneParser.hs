@@ -35,7 +35,7 @@ parseInt s = case reads s of
 
 parseSurface :: [String] -> Either String Surface
 parseSurface ("diffusive":r:g:b:_) = Diffusive <$>
-    (RGB <$> parseDouble r <*> parseDouble g <*> parseDouble b)
+    (makeRGB <$> parseDouble r <*> parseDouble g <*> parseDouble b)
 parseSurface ("diffusive":_) = Left $ missingString "diffusive"
 parseSurface (s:_) = Left $ "Unknown surface type: \'" ++ s ++ "\'"
 parseSurface [] = Left "Missing surface type"
