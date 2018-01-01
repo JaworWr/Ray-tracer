@@ -42,7 +42,7 @@ data Color =
     RGB Double Double Double
     deriving (Eq, Show)
 
--- funkcja tworząca kolory w postaci RGB
+-- konstruktor kolorów w postaci RGB
 makeRGB :: Double -> Double -> Double -> Color
 makeRGB r g b = RGB (norm r) (norm g) (norm b) where
     norm = min 1 . max 0

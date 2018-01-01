@@ -7,6 +7,7 @@ import DataTypes
 import Data.Char
 import Data.List
 
+-- funkcja parsująca scenę
 parse :: String -> Either String Scene
 parse = parseScene . getHeader . splitInput
 

@@ -9,10 +9,12 @@ import System.IO.Error
 import Data.List
 import Codec.BMP
 
+-- funkcja przekształcająca obraz do formatu BMP
 imageToBmp :: Image -> BMP
 imageToBmp (Image w h c) =
     packRGBA32ToBMP w h . BStr.pack $ concatMap toWordList c
 
+-- funkcja tworząca nazwę wyjściowego pliku na podstawie nazwy pliku wejściowego
 changeExt :: String -> String
 changeExt s = case dropWhileEnd (/= '.') s of
     [] -> s ++ ".bmp"
