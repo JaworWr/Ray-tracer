@@ -4,10 +4,10 @@ import DataTypes
 import SceneParser
 import Scene
 import qualified Data.ByteString as BStr
-import Codec.BMP
 import System.Environment
 import System.IO.Error
 import Data.List
+import Codec.BMP
 
 imageToBmp :: Image -> BMP
 imageToBmp (Image w h c) =
