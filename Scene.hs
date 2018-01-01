@@ -6,7 +6,7 @@ import Geometry
 -- funkcja renderująca scenę
 render :: Scene -> Image
 render s = Image (pxWidth s) (pxHeight s) $
-    map (traceRay (light s) (objects s)) (makeRays s)
+    map (traceRay (bgColor s) (light s) (objects s)) (makeRays s)
 
 -- typ danych reprezentujący możliwe rodzaje powierzchni obiektów
 data Surface =
@@ -30,6 +30,7 @@ data Scene = Scene {
     pxHeight :: Int,
     scrWidth :: Double,
     scrHeight :: Double,
+    bgColor :: Color,
     depth :: Double
 } deriving (Eq, Show)
 
@@ -53,8 +54,8 @@ closestIntersect r = minIntersect
             Just $ foldl1 (\acc x -> if fst x < fst acc then x else acc) xs
 
 -- funkcja śledząca promień w celu obliczenia koloru badanego piksela
-traceRay :: LightSource -> [Object] -> Ray -> Color
-traceRay l xs r = maybe black calcColor m where
+traceRay :: Color -> LightSource -> [Object] -> Ray -> Color
+traceRay c l xs r = maybe c calcColor m where
     m = closestIntersect r xs
     calcColor (t, o) = let x = getRayPoint r t in
         case surface o of

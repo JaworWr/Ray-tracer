@@ -7,9 +7,10 @@ import DataTypes
 import Data.Char
 import Data.List
 
--- funkcja parsująca scenę
 parse :: String -> Either String Scene
 parse = parseScene . getHeader . splitInput
+
+type Parser s a = s -> Either String a
 
 missingString :: String -> String
 missingString s = "Missing arguments for \'" ++ s ++ "\'"
@@ -24,24 +25,24 @@ getHeader [] = ([], [])
 getHeader (("objects":_):xs) = ([], xs)
 getHeader (l:xs) = let (ys, zs) = getHeader xs in (l:ys, zs)
 
-parseDouble :: String -> Either String Double
+parseDouble :: Parser String Double
 parseDouble s = case reads s of
     [(x, [])] -> return x
     _ -> Left "Expected a Double"
 
-parseInt :: String -> Either String Int
+parseInt :: Parser String Int
 parseInt s = case reads s of
     [(x, [])] -> return x
     _ -> Left "Expected an Int"
 
-parseSurface :: [String] -> Either String Surface
+parseSurface :: Parser [String] Surface
 parseSurface ("diffusive":r:g:b:_) = Diffusive <$>
     (makeRGB <$> parseDouble r <*> parseDouble g <*> parseDouble b)
 parseSurface ("diffusive":_) = Left $ missingString "diffusive"
 parseSurface (s:_) = Left $ "Unknown surface type: \'" ++ s ++ "\'"
 parseSurface [] = Left "Missing surface type"
 
-parseObject :: [String] -> Either String Object
+parseObject :: Parser [String] Object
 parseObject ("sphere":x:y:z:r:xs) = Object <$>
     (makeSphere <$>
         (Vector <$> parseDouble x <*> parseDouble y <*> parseDouble z) <*>
@@ -56,13 +57,13 @@ parseObject ("plane":x:y:z:nx:ny:nz:xs) = Object <$>
 parseObject ("plane":_) = Left $ missingString "plane"
 parseObject (o:_) = Left $ "Unknown object: \'" ++ o ++ "\'"
 
-parseObjects :: [[String]] -> Either String [Object]
+parseObjects :: Parser [[String]] [Object]
 parseObjects = foldl (\acc l -> (:) <$> parseObject l <*> acc) (return [])
 
 findPropLine :: String -> [[String]] -> Maybe [String]
 findPropLine p = (tail <$>) . find ((== p) . head)
 
-parseLightSource :: [[String]] -> Either String LightSource
+parseLightSource :: Parser [[String]] LightSource
 parseLightSource xs = case findPropLine "light" xs of
     Just ("directional":x:y:z:_) -> makeDirectional <$>
         (Vector <$> parseDouble x <*> parseDouble y <*> parseDouble z)
@@ -71,11 +72,17 @@ parseLightSource xs = case findPropLine "light" xs of
     Just [] -> Left "Light source information missing"
     Nothing -> Left "Light source information missing"
 
-parseProp :: (String -> Either String a) -> String -> [[String]] -> Either String a
+parseProp :: Parser String a -> String -> [[String]] -> Either String a
 parseProp f p xs = case findPropLine p xs of
     Just (x:_) -> f x
-    Just [] -> Left $ "Missing property arguments of \'" ++ p ++ "\'"
+    Just [] -> Left $ "Missing property argument of \'" ++ p ++ "\'"
     Nothing -> Left $ "Missing property: \'" ++ p ++ "\'"
+
+parseBgColor :: Parser [[String]] Color
+parseBgColor xs = case findPropLine "bgcolor" xs of
+    Just (r:g:b:_) -> makeRGB <$> parseDouble r <*> parseDouble g <*> parseDouble b
+    Just _ -> Left "Missing property argument of \'bgColor\'"
+    Nothing -> return black
 
 parseScene :: ([[String]], [[String]]) -> Either String Scene
 parseScene (xs, o) = Scene <$>
@@ -85,4 +92,5 @@ parseScene (xs, o) = Scene <$>
     parseProp parseInt "imheight" xs <*>
     parseProp parseDouble "scrwidth" xs <*>
     parseProp parseDouble "scrheight" xs <*>
+    parseBgColor xs <*>
     parseProp parseDouble "depth" xs
