@@ -37,26 +37,60 @@ vecLen = sqrt . sqVecLen
 normalize :: Vector -> Vector
 normalize v = (1 / vecLen v) `times` v
 
--- typ danych reprezentujący kolory
-data Color =
-    RGB Double Double Double
-    deriving (Eq, Show)
+-- klasa reprezentująca kolory
+class Color t where
+    -- dodawanie kolorów
+    infixl 6 `cAdd`
+    cAdd :: t -> t -> t
+    -- odejmowanie kolorów
+    infixl 6 `cSub`
+    cSub :: t -> t -> t
+    -- mnożenie koloru przez skalar
+    infixl 7 `cTimes`
+    cTimes :: Double -> t -> t
+    -- mnożenie kolorów
+    infixl 7 `cMult`
+    cMult :: t -> t -> t
+    -- zamiana koloru n listę 4 wartości reprezentujących kolor w formacie RGBA32
+    toWordList :: t -> [Word8]
 
--- konstruktor kolorów w postaci RGB
-makeRGB :: Double -> Double -> Double -> Color
-makeRGB r g b = RGB (norm r) (norm g) (norm b) where
-    norm = min 1 . max 0
+    -- stałe reprezentujące kolor czarny i biały
+    black :: t
+    white :: t
 
--- zamiana koloru na listę czterech wartości typu Word8
-toWordList :: Color -> [Word8]
-toWordList = map (round . (* 255)) . toDoubleList where
-    toDoubleList (RGB r g b) = [r, g, b, 1]
+-- typ danych reprezentujący kolory w formacie RGB
+type RGB = Vector
 
--- mnożenie koloru przez liczbę (z przedziału [0, 1])
-infixl 7 `cMult`
-cMult :: Double -> Color -> Color
-cMult t (RGB r g b) = RGB (t * r) (t * g) (t * b)
+-- konstruktor kolorów w formacie RGB
+makeRGB :: Double -> Double -> Double -> RGB
+makeRGB = Vector
 
--- stałe reprezentujące wybrane kolory
-black :: Color
-black = RGB 0 0 0
+instance Color Vector where
+    cAdd = (+.)
+    cSub = (-.)
+    cTimes = times
+    cMult (Vector r1 g1 b1) (Vector r2 g2 b2) = Vector (r1 * r2) (g1 * g2) (b1 * b2)
+    toWordList = (++ [255]) . map (round . (* 255) . max 0 . min 1) . toDoubleList where
+         toDoubleList (Vector r g b) = [r, g, b]
+
+    black = Vector 0 0 0
+    white = Vector 1 1 1
+
+-- stałe reprezentujące wybrane dodatkowe kolory
+red :: RGB
+red = makeRGB 1 0 0
+
+green :: RGB
+green = makeRGB 0 1 0
+
+blue :: RGB
+blue = makeRGB 0 0 1
+
+cyan :: RGB
+cyan = makeRGB 0 1 1
+
+magenta :: RGB
+magenta = makeRGB 1 0 1
+
+yellow :: RGB
+yellow = makeRGB 1 1 0

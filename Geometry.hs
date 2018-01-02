@@ -5,6 +5,9 @@ import DataTypes
 eps :: Double
 eps = 0.00000001
 
+inf :: Double
+inf = 1/0
+
 -- Typ danych reprezentujący promień dany w postaci x + t*d
 -- gdzie x to źródło promienia a d to wektor normalny wskazujący jego kierunek
 data Ray = Ray { origin :: Vector, dir :: Vector } deriving (Show, Eq)
@@ -59,18 +62,26 @@ reflect :: Geometry -> Vector -> Ray -> Ray
 reflect g x = reflectRay x (normalVector g x)
 
 -- typ danych reprezentujący źródło światła
-data LightSource =
-    Directional Vector
+data LightSource t =
+    Directional t Vector |
+    Spherical t Vector
     deriving (Eq, Show)
 
--- konstruktor światła kierunkowego
-makeDirectional :: Vector -> LightSource
-makeDirectional = Directional . normalize . times (-1)
+-- konstruktor kierunkowego źródła światła
+makeDirectional :: t -> Vector -> LightSource t
+makeDirectional c = Directional c . normalize . times (-1)
+
+-- konstruktor punktowego źródła światła
+makeSpherical :: t -> Vector -> LightSource t
+makeSpherical = Spherical
 
 -- konstruktor promienia wyznaczającego oświetlenie obiektu
-makeShadowRay :: LightSource -> Vector -> Ray
-makeShadowRay (Directional i) x = makeRay x i
+makeShadowRay :: LightSource t -> Vector -> Ray
+makeShadowRay (Directional _ i) x = makeRay x i
+makeShadowRay (Spherical _ s) x = makeRay x (s -. x)
 
 -- ilość światła padającego na obiekt
-getLight :: LightSource -> Vector -> Double
-getLight (Directional i) d = max 0 $ i `dot` d
+getLight :: Color t => LightSource t -> Double -> Vector -> Vector -> t
+getLight (Directional c i) _ _ n = max 0 (i `dot` n) `cTimes` c
+getLight (Spherical c s) d x n =
+    max 0 ((s -. x) `dot` n) / (4 * pi * d * d) `cTimes` c

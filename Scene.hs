@@ -4,46 +4,46 @@ import DataTypes
 import Geometry
 
 -- funkcja renderująca scenę
-render :: Scene -> Image
+render :: Color t => Scene t -> Image t
 render s = Image (pxWidth s) (pxHeight s) $
-    map (traceRay (bgColor s) (light s) (objects s)) (makeRays s)
+    map (traceRay (bgColor s) (lights s) (objects s)) (makeRays s)
 
 -- typ danych reprezentujący możliwe rodzaje powierzchni obiektów
-data Surface =
-    Diffusive Color |
+data Surface t =
+    Diffusive t |
     Reflective |
     Lit |
-    Mixed [(Surface, Double)]
+    Mixed [(Surface t, Double)]
     deriving (Eq, Show)
 
 -- typ danych reprezentujący obiekty sceny
-data Object = Object {
+data Object t = Object {
     geometry :: Geometry,
-    surface :: Surface
+    surface :: Surface t
 } deriving (Eq, Show)
 
 -- typ danych reprezentujący scenę
-data Scene = Scene {
-    objects :: [Object],
-    light :: LightSource,
+data Scene t = Scene {
+    objects :: [Object t],
+    lights :: [LightSource t],
     pxWidth :: Int,
     pxHeight :: Int,
     scrWidth :: Double,
     scrHeight :: Double,
-    bgColor :: Color,
+    bgColor :: t,
     depth :: Double
 } deriving (Eq, Show)
 
 -- typ danych reprezentujący obraz w postaci listy pikseli
-data Image = Image {
+data Image t = Image {
     imWidth :: Int,
     imHeight :: Int,
-    imPixels :: [Color]
+    imPixels :: [t]
 } deriving (Eq, Show)
 
 -- funkcja znajdująca, o ile to możliwe, najmniejszą dodatnią wartość t,
 -- dla której promień x + t*d przecina przecina pewien obiekt sceny, a także ów obiekt
-closestIntersect :: Ray -> [Object] -> Maybe (Double, Object)
+closestIntersect :: Ray -> [Object t] -> Maybe (Double, Object t)
 closestIntersect r = minIntersect
     . filter ((> eps) . fst)
     . concatMap pairWithIntersects
@@ -54,28 +54,29 @@ closestIntersect r = minIntersect
             Just $ foldl1 (\acc x -> if fst x < fst acc then x else acc) xs
 
 -- funkcja śledząca promień w celu obliczenia koloru badanego piksela
-traceRay :: Color -> LightSource -> [Object] -> Ray -> Color
-traceRay c l xs r = maybe c calcColor m where
+traceRay :: Color t => t -> [LightSource t] -> [Object t] -> Ray -> t
+traceRay c ls xs r = maybe c calcRGB m where
     m = closestIntersect r xs
-    calcColor (t, o) = let x = getRayPoint r t in
+    calcRGB (t, o) = let x = getRayPoint r t in
         case surface o of
-            Diffusive c ->
-                traceShadow l (normalVector (geometry o) x) xs
-                    (makeShadowRay l x) `cMult` c
+            Diffusive c -> foldl cAdd black
+                (map (\l -> traceShadow l t x (normalVector (geometry o) x) xs
+                    (makeShadowRay l x)) ls)
+                `cMult` c
             _ -> error "Not yet implemented"
 
 -- funkcja obliczająca ilość światła padającego na obiekt
 -- poprzez śledzenie dodatkowego promienia
-traceShadow :: LightSource -> Vector -> [Object] -> Ray -> Double
-traceShadow l n xs r = maybe (getLight l n) calcLight m where
+traceShadow :: Color t => LightSource t -> Double -> Vector -> Vector -> [Object t] -> Ray -> t
+traceShadow l d x n xs r = maybe (getLight l d x n) calcLight m where
     m = closestIntersect r xs
     calcLight (t, o) = let x = getRayPoint r t in
         case surface o of
-            Diffusive _ -> 0
+            Diffusive _ -> black
             _ -> error "Not yet implemented"
 
 -- funkcja tworząca listę promieni odpowiadających pikselom tworzonego obrazu
-makeRays :: Scene -> [Ray]
+makeRays :: Scene t -> [Ray]
 makeRays s = map makePixelRay pixelVectors where
     makePixelRay = makeRay (Vector 0 0 (- depth s))
     diffX = scrWidth s / fromIntegral (pxWidth s)
