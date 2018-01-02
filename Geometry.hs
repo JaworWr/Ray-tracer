@@ -84,4 +84,4 @@ makeShadowRay (Spherical _ s) x = makeRay x (s -. x)
 getLight :: Color t => LightSource t -> Double -> Vector -> Vector -> t
 getLight (Directional c i) _ _ n = max 0 (i `dot` n) `cTimes` c
 getLight (Spherical c s) d x n =
-    max 0 ((s -. x) `dot` n) / (4 * pi * d * d) `cTimes` c
+    max 0 (normalize (s -. x) `dot` n) / (4 * pi * d * d) `cTimes` c

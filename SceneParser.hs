@@ -71,13 +71,15 @@ parseObjects :: Parser [[String]] [Object RGB]
 parseObjects = parseList parseObject
 
 parseLight :: Parser [String] (LightSource RGB)
-parseLight ("directional":r:g:b:x:y:z:_) = makeDirectional <$>
-        (makeRGB <$> parseDouble r <*> parseDouble g <*> parseDouble b) <*>
-        (Vector <$> parseDouble x <*> parseDouble y <*> parseDouble z)
+parseLight ("directional":r:g:b:i:x:y:z:_) = makeDirectional <$>
+    (cTimes <$> parseDouble i <*>
+        (makeRGB <$> parseDouble r <*> parseDouble g <*> parseDouble b)) <*>
+    (Vector <$> parseDouble x <*> parseDouble y <*> parseDouble z)
 parseLight ("directional":_) = Left $ missingString "directional"
-parseLight ("spherical":r:g:b:x:y:z:_) = makeSpherical <$>
-        (makeRGB <$> parseDouble r <*> parseDouble g <*> parseDouble b) <*>
-        (Vector <$> parseDouble x <*> parseDouble y <*> parseDouble z)
+parseLight ("spherical":r:g:b:i:x:y:z:_) = makeSpherical <$>
+    (cTimes <$> parseDouble i <*>
+        (makeRGB <$> parseDouble r <*> parseDouble g <*> parseDouble b)) <*>
+    (Vector <$> parseDouble x <*> parseDouble y <*> parseDouble z)
 parseLight ("spherical":_) = Left $ missingString "spherical"
 parseLight (l:_) = Left $ "Unknown light source type: \'" ++ l ++ "\'"
 
