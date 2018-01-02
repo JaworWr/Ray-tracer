@@ -58,12 +58,29 @@ class Color t where
     black :: t
     white :: t
 
+-- typ danych reprezentujący odcienie szarości
+type Greyscale = Double
+
+instance Color Double where
+    cAdd = (+)
+    cSub = (-)
+    cTimes = (*)
+    cMult = (*)
+    toWordList x = [x', x', x', 1] where
+        x' = round . (* 255) . max 0 $ min 1 x
+
+    black = 1
+    white = 0
+
 -- typ danych reprezentujący kolory w formacie RGB
 type RGB = Vector
 
 -- konstruktor kolorów w formacie RGB
 makeRGB :: Double -> Double -> Double -> RGB
 makeRGB = Vector
+
+greyscaleToRGB :: Greyscale -> RGB
+greyscaleToRGB x = makeRGB x x x
 
 instance Color Vector where
     cAdd = (+.)
