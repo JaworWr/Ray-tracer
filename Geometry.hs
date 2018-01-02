@@ -85,3 +85,7 @@ getLight :: Color t => LightSource t -> Double -> Vector -> Vector -> t
 getLight (Directional c i) _ _ n = max 0 (i `dot` n) `cTimes` c
 getLight (Spherical c s) d x n =
     max 0 (normalize (s -. x) `dot` n) / (4 * pi * d * d) `cTimes` c
+
+lIntersect :: LightSource t -> Double -> Double -> Bool
+lIntersect (Directional _ _) _ _ = True
+lIntersect (Spherical _ _) d t = t <= d

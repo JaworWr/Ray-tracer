@@ -69,7 +69,7 @@ traceRay c ls xs r = maybe c calcRGB m where
 -- poprzez śledzenie dodatkowego promienia
 traceShadow :: Color t => LightSource t -> Double -> Vector -> Vector -> [Object t] -> Ray -> t
 traceShadow l d x n xs r = maybe (getLight l d x n) calcLight m where
-    m = closestIntersect r xs
+    m = closestIntersect r xs >>= \x -> if lIntersect l d $ fst x then return x else Nothing
     calcLight (t, o) = let x = getRayPoint r t in
         case surface o of
             Diffusive _ -> black
