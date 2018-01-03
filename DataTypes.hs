@@ -69,8 +69,8 @@ instance Color Double where
     toWordList x = [x', x', x', 1] where
         x' = round . (* 255) . max 0 $ min 1 x
 
-    black = 1
-    white = 0
+    black = 0
+    white = 1
 
 -- typ danych reprezentujący kolory w formacie RGB
 type RGB = Vector
