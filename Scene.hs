@@ -78,16 +78,15 @@ traceShadow l x n xs r = maybe (getLight l x n) calcLight m where
 
 -- funkcja tworząca listę promieni odpowiadających pikselom tworzonego obrazu
 makeRays :: Scene t -> [Ray]
-makeRays s = map makePixelRay pixelVectors where
-    makePixelRay = makeRay (Vector 0 0 (- depth s))
+makeRays s = pixelRays where
     diffX = scrWidth s / fromIntegral (pxWidth s)
     diffY = scrHeight s / fromIntegral (pxHeight s)
     shiftX x = fromIntegral (x - (pxHeight s `div` 2)) * diffX
     shiftY y = fromIntegral (y - (pxWidth s `div` 2)) * diffY
-    pixelVectors = makePixelVectors 0 0
-    makePixelVectors x y =
-        Vector (shiftX x) (shiftY y) (depth s) : pixelVectorsNext x y
-    pixelVectorsNext x y
-        | x < pxWidth s - 1 = makePixelVectors (x+1) y
-        | y < pxHeight s -1 = makePixelVectors 0 (y+1)
+    pixelRays = makePixelRay 0 0
+    makePixelRay x y = makeRay (Vector (shiftX x) (shiftY y) 0)
+        (Vector (shiftX x) (shiftY y) (depth s)) : pixelRaysNext x y
+    pixelRaysNext x y
+        | x < pxWidth s - 1 = makePixelRay (x+1) y
+        | y < pxHeight s -1 = makePixelRay 0 (y+1)
         | otherwise = []
