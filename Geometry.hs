@@ -81,11 +81,11 @@ makeShadowRay (Directional _ i) x = makeRay x i
 makeShadowRay (Spherical _ s) x = makeRay x (s -. x)
 
 -- ilość światła padającego na obiekt
-getLight :: Color t => LightSource t -> Double -> Vector -> Vector -> t
-getLight (Directional c i) _ _ n = max 0 (i `dot` n) `cTimes` c
-getLight (Spherical c s) d x n =
-    max 0 (normalize (s -. x) `dot` n) / (4 * pi * d * d) `cTimes` c
+getLight :: Color t => LightSource t -> Vector -> Vector -> t
+getLight (Directional c i) _ n = max 0 (i `dot` n) `cTimes` c
+getLight (Spherical c s) x n = let d = s -. x in
+    max 0 (normalize d `dot` n) / sqVecLen d `cTimes` c
 
-lIntersect :: LightSource t -> Double -> Double -> Bool
+lIntersect :: LightSource t -> Double -> Vector -> Bool
 lIntersect (Directional _ _) _ _ = True
-lIntersect (Spherical _ _) d t = t <= d
+lIntersect (Spherical _ s) d x = d * d < sqVecLen (x -. s)

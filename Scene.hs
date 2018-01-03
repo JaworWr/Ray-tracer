@@ -60,16 +60,17 @@ traceRay c ls xs r = maybe c calcRGB m where
     calcRGB (t, o) = let x = getRayPoint r t in
         case surface o of
             Diffusive c -> foldl cAdd black
-                (map (\l -> traceShadow l t x (normalVector (geometry o) x) xs
+                (map (\l -> traceShadow l x (normalVector (geometry o) x) xs
                     (makeShadowRay l x)) ls)
                 `cMult` c
             _ -> error "Not yet implemented"
 
 -- funkcja obliczająca ilość światła padającego na obiekt
 -- poprzez śledzenie dodatkowego promienia
-traceShadow :: Color t => LightSource t -> Double -> Vector -> Vector -> [Object t] -> Ray -> t
-traceShadow l d x n xs r = maybe (getLight l d x n) calcLight m where
-    m = closestIntersect r xs >>= \x -> if lIntersect l d $ fst x then return x else Nothing
+traceShadow :: Color t => LightSource t -> Vector -> Vector -> [Object t] -> Ray -> t
+traceShadow l x n xs r = maybe (getLight l x n) calcLight m where
+    m = closestIntersect r xs >>=
+        \p -> if lIntersect l (fst p) x then return p else Nothing
     calcLight (t, o) = let x = getRayPoint r t in
         case surface o of
             Diffusive _ -> black
