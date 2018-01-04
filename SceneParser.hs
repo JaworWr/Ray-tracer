@@ -42,12 +42,18 @@ parseInt s = case reads s of
     [(x, [])] -> return x
     _ -> Left "Expected an Int"
 
+parsePositive :: (Num t, Ord t) => Parser String t -> Parser String t
+parsePositive p xs = max 0 <$> p xs
+
 parseList :: Parser [String] a -> Parser [[String]] [a]
 parseList p = foldl (\acc l -> (:) <$> p l <*> acc) (return [])
 
 parseSurface :: Parser [String] (Surface RGB)
 parseSurface ("diffusive":r:g:b:_) = Diffusive <$>
-    (makeRGB <$> parseDouble r <*> parseDouble g <*> parseDouble b)
+    (makeRGB <$>
+        parsePositive parseDouble r <*>
+        parsePositive parseDouble g <*>
+        parsePositive parseDouble b)
 parseSurface ("diffusive":_) = Left $ missingString "diffusive"
 parseSurface (s:_) = Left $ "Unknown surface type: \'" ++ s ++ "\'"
 parseSurface [] = Left "Missing surface type"
@@ -73,12 +79,18 @@ parseObjects = parseList parseObject
 parseLight :: Parser [String] (LightSource RGB)
 parseLight ("directional":r:g:b:i:x:y:z:_) = makeDirectional <$>
     (cTimes <$> parseDouble i <*>
-        (makeRGB <$> parseDouble r <*> parseDouble g <*> parseDouble b)) <*>
+        (makeRGB <$>
+            parsePositive parseDouble r <*>
+            parsePositive parseDouble g <*>
+            parsePositive parseDouble b)) <*>
     (Vector <$> parseDouble x <*> parseDouble y <*> parseDouble z)
 parseLight ("directional":_) = Left $ missingString "directional"
 parseLight ("spherical":r:g:b:i:x:y:z:_) = makeSpherical <$>
     (cTimes <$> parseDouble i <*>
-        (makeRGB <$> parseDouble r <*> parseDouble g <*> parseDouble b)) <*>
+    (makeRGB <$>
+        parsePositive parseDouble r <*>
+        parsePositive parseDouble g <*>
+        parsePositive parseDouble b)) <*>
     (Vector <$> parseDouble x <*> parseDouble y <*> parseDouble z)
 parseLight ("spherical":_) = Left $ missingString "spherical"
 parseLight (l:_) = Left $ "Unknown light source type: \'" ++ l ++ "\'"
@@ -97,7 +109,10 @@ parseProp f p xs = case findPropLine p xs of
 
 parseBgColor :: Parser [[String]] RGB
 parseBgColor xs = case findPropLine "bgcolor" xs of
-    Just (r:g:b:_) -> makeRGB <$> parseDouble r <*> parseDouble g <*> parseDouble b
+    Just (r:g:b:_) -> makeRGB <$>
+        parsePositive parseDouble r <*>
+        parsePositive parseDouble g <*>
+        parsePositive parseDouble b
     Just _ -> Left "Missing property argument of \'bgRGB\'"
     Nothing -> return black
 
@@ -105,9 +120,9 @@ parseScene :: ([[String]], [[String]], [[String]]) -> Either String (Scene RGB)
 parseScene (xs, l, o) = Scene <$>
     parseObjects o <*>
     parseLights l <*>
-    parseProp parseInt "imwidth" xs <*>
-    parseProp parseInt "imheight" xs <*>
-    parseProp parseDouble "scrwidth" xs <*>
-    parseProp parseDouble "scrheight" xs <*>
+    parseProp (parsePositive parseInt) "imwidth" xs <*>
+    parseProp (parsePositive parseInt) "imheight" xs <*>
+    parseProp (parsePositive parseDouble) "scrwidth" xs <*>
+    parseProp (parsePositive parseDouble) "scrheight" xs <*>
     parseBgColor xs <*>
-    parseProp parseDouble "depth" xs
+    parseProp (parsePositive parseDouble) "depth" xs
