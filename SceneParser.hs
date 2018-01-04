@@ -43,13 +43,22 @@ pVector = Vector <$> pDouble <*> pDouble <*> pDouble
 pRGB :: Parser RGB
 pRGB = makeRGB <$> pPositive pDouble <*> pPositive pDouble <*> pPositive pDouble
 
+pLights :: Parser [LightSource RGB]
+pLights = pKw "lights" >> many pLight
+
+pLight :: Parser (LightSource RGB)
+pLight = choice [
+    pKw "directional" >> makeDirectional <$> pPositive pDouble <*> pRGB <*> pVector,
+    pKw "spherical" >> makeDirectional <$> pPositive pDouble <*> pRGB <*> pVector
+    ]
+
 pScene :: Parser (Scene RGB)
 pScene = Scene <$>
     undefined <*>
-    undefined <*>
+    pLights <*>
     (pKw "imwidth" >> pPositive pInt) <*>
     (pKw "imheight" >> pPositive pInt) <*>
-    (pKw "width" >> pPositive pDouble) <*>
-    (pKw "height" >> pPositive pDouble) <*>
+    (pKw "scrwidth" >> pPositive pDouble) <*>
+    (pKw "scrheight" >> pPositive pDouble) <*>
     (pKw "depth" >> pPositive pDouble) <*>
     option black (pKw "bgcolor" >> pRGB)
