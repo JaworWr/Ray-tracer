@@ -21,7 +21,7 @@ def = emptyDef {
                     "scrheight", "depth", "bgcolor",
                     "lights", "directional", "spherical",
                     "objects", "sphere", "plane",
-                    "diffusive", "reflective", "luminous"]
+                    "diffusive", "reflective", "luminous", "mixed"]
 }
 
 tokenParser = makeTokenParser def
@@ -52,9 +52,25 @@ pLight = choice [
     pKw "spherical" >> makeDirectional <$> pPositive pDouble <*> pRGB <*> pVector
     ]
 
+pObjects :: Parser [Object RGB]
+pObjects = pKw "objects" >> many pObject
+
+pObject :: Parser (Object RGB)
+pObject = choice [
+    undefined
+    ]
+
+pSurface :: Parser (Surface RGB)
+pSurface = choice [
+    pKw "diffusive" >> Diffusive <$> pRGB,
+    pKw "reflective" >> return Reflective,
+    pKw "luminous" >> Luminous <$> pRGB,
+    pKw "mixed" >> Mixed <$> many1 ((,) <$> pDouble <*> pSurface)
+    ]
+
 pScene :: Parser (Scene RGB)
 pScene = Scene <$>
-    undefined <*>
+    pObjects <*>
     pLights <*>
     (pKw "imwidth" >> pPositive pInt) <*>
     (pKw "imheight" >> pPositive pInt) <*>

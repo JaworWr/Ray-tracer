@@ -14,7 +14,7 @@ data Surface t =
     Diffusive t |
     Reflective |
     Luminous t |
-    Mixed [(Surface t, Double)]
+    Mixed [(Double, Surface t)]
     deriving (Eq, Show)
 
 -- typ danych reprezentujący obiekty sceny
