@@ -68,12 +68,12 @@ data LightSource t =
     deriving (Eq, Show)
 
 -- konstruktor kierunkowego źródła światła
-makeDirectional :: t -> Vector -> LightSource t
-makeDirectional c = Directional c . normalize . times (-1)
+makeDirectional :: Color t => Double -> t -> Vector -> LightSource t
+makeDirectional i c = Directional (i `cTimes` c) . normalize . times (-1)
 
 -- konstruktor punktowego źródła światła
-makeSpherical :: t -> Vector -> LightSource t
-makeSpherical = Spherical
+makeSpherical :: Color t => Double -> t -> Vector -> LightSource t
+makeSpherical i c = Spherical (i `cTimes` c)
 
 -- konstruktor promienia wyznaczającego oświetlenie obiektu
 makeShadowRay :: LightSource t -> Vector -> Ray
