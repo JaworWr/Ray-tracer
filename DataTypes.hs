@@ -42,9 +42,6 @@ class Color t where
     -- dodawanie kolorów
     infixl 6 `cAdd`
     cAdd :: t -> t -> t
-    -- odejmowanie kolorów
-    infixl 6 `cSub`
-    cSub :: t -> t -> t
     -- mnożenie koloru przez skalar
     infixl 7 `cTimes`
     cTimes :: Double -> t -> t
@@ -63,7 +60,6 @@ type Greyscale = Double
 
 instance Color Double where
     cAdd = (+)
-    cSub = (-)
     cTimes = (*)
     cMult = (*)
     toWordList x = [x', x', x', 1] where
@@ -84,7 +80,6 @@ greyscaleToRGB x = makeRGB x x x
 
 instance Color Vector where
     cAdd = (+.)
-    cSub = (-.)
     cTimes = times
     cMult (Vector r1 g1 b1) (Vector r2 g2 b2) = Vector (r1 * r2) (g1 * g2) (b1 * b2)
     toWordList = (++ [255]) . map (round . (* 255) . max 0 . min 1) . toDoubleList where
