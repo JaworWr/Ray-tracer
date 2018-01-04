@@ -61,6 +61,7 @@ parseSurface ("luminous":r:g:b:_) = Luminous <$>
         parsePositive parseDouble g <*>
         parsePositive parseDouble b)
 parseSurface ("luminous":_) = Left $ missingString "luminous"
+parseSurface ("reflective":_) = return Reflective
 parseSurface (s:_) = Left $ "Unknown surface type: \'" ++ s ++ "\'"
 parseSurface [] = Left "Missing surface type"
 

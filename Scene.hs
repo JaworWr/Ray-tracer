@@ -2,11 +2,12 @@ module Scene where
 
 import DataTypes
 import Geometry
+import Data.Maybe
 
 -- funkcja renderująca scenę
 render :: Color t => Scene t -> Image t
 render s = Image (pxWidth s) (pxHeight s) $
-    map (traceRay (bgColor s) (lights s) (objects s)) (makeRays s)
+    map (traceRay 5 (bgColor s) (lights s) (objects s)) (makeRays s)
 
 -- typ danych reprezentujący możliwe rodzaje powierzchni obiektów
 data Surface t =
@@ -54,8 +55,9 @@ closestIntersect r = minIntersect
             Just $ foldl1 (\acc x -> if fst x < fst acc then x else acc) xs
 
 -- funkcja śledząca promień w celu obliczenia koloru badanego piksela
-traceRay :: Color t => t -> [LightSource t] -> [Object t] -> Ray -> t
-traceRay c ls xs r = maybe c calcRGB m where
+traceRay :: Color t => Int -> t -> [LightSource t] -> [Object t] -> Ray -> t
+traceRay 0 bg _ _ _ = bg
+traceRay d bg ls xs r = maybe bg calcRGB m where
     m = closestIntersect r xs
     calcRGB (t, o) = let x = getRayPoint r t in
         case surface o of
@@ -63,6 +65,7 @@ traceRay c ls xs r = maybe c calcRGB m where
                 (map (\l -> traceShadow l x (normalVector (geometry o) x) xs
                     (makeShadowRay l x)) ls)
                 `cMult` c
+            Reflective -> traceRay (d-1) bg ls xs (reflect (geometry o) x r)
             Luminous c ->
                 normalVector (geometry o) x `dot` ((-1) `times` dir r) `cTimes` c
             _ -> error "Not yet implemented"
@@ -70,14 +73,9 @@ traceRay c ls xs r = maybe c calcRGB m where
 -- funkcja obliczająca ilość światła padającego na obiekt
 -- poprzez śledzenie dodatkowego promienia
 traceShadow :: Color t => LightSource t -> Vector -> Vector -> [Object t] -> Ray -> t
-traceShadow l x n xs r = maybe (getLight l x n) calcLight m where
+traceShadow l x n xs r = if isJust m then black else getLight l x n where
     m = closestIntersect r xs >>=
         \p -> if lIntersect l (fst p) x then return p else Nothing
-    calcLight (t, o) = let x = getRayPoint r t in
-        case surface o of
-            Diffusive _ -> black
-            Luminous _ -> black
-            _ -> error "Not yet implemented"
 
 -- funkcja tworząca listę promieni odpowiadających pikselom tworzonego obrazu
 makeRays :: Scene t -> [Ray]
