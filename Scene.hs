@@ -31,8 +31,8 @@ data Scene t = Scene {
     pxHeight :: Int,
     scrWidth :: Double,
     scrHeight :: Double,
-    bgColor :: t,
-    depth :: Double
+    depth :: Double,
+    bgColor :: t
 } deriving (Eq, Show)
 
 -- typ danych reprezentujący obraz w postaci listy pikseli
