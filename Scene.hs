@@ -12,7 +12,7 @@ render s = Image (pxWidth s) (pxHeight s) $
 data Surface t =
     Diffusive t |
     Reflective |
-    Lit |
+    Luminous t |
     Mixed [(Surface t, Double)]
     deriving (Eq, Show)
 
@@ -63,6 +63,8 @@ traceRay c ls xs r = maybe c calcRGB m where
                 (map (\l -> traceShadow l x (normalVector (geometry o) x) xs
                     (makeShadowRay l x)) ls)
                 `cMult` c
+            Luminous c ->
+                normalVector (geometry o) x `dot` ((-1) `times` dir r) `cTimes` c
             _ -> error "Not yet implemented"
 
 -- funkcja obliczająca ilość światła padającego na obiekt
@@ -74,6 +76,7 @@ traceShadow l x n xs r = maybe (getLight l x n) calcLight m where
     calcLight (t, o) = let x = getRayPoint r t in
         case surface o of
             Diffusive _ -> black
+            Luminous _ -> black
             _ -> error "Not yet implemented"
 
 -- funkcja tworząca listę promieni odpowiadających pikselom tworzonego obrazu

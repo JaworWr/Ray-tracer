@@ -55,6 +55,12 @@ parseSurface ("diffusive":r:g:b:_) = Diffusive <$>
         parsePositive parseDouble g <*>
         parsePositive parseDouble b)
 parseSurface ("diffusive":_) = Left $ missingString "diffusive"
+parseSurface ("luminous":r:g:b:_) = Luminous <$>
+    (makeRGB <$>
+        parsePositive parseDouble r <*>
+        parsePositive parseDouble g <*>
+        parsePositive parseDouble b)
+parseSurface ("luminous":_) = Left $ missingString "luminous"
 parseSurface (s:_) = Left $ "Unknown surface type: \'" ++ s ++ "\'"
 parseSurface [] = Left "Missing surface type"
 
