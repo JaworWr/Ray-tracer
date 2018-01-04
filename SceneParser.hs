@@ -17,6 +17,8 @@ parseScene name s = case parse pScene name s of
 def = emptyDef {
     commentLine = "#",
     caseSensitive = False,
+    opStart = oneOf "+-",
+    opLetter = oneOf "+-",
     reservedNames = ["imwidth", "imheight", "scrwidth",
                     "scrheight", "depth", "bgcolor",
                     "lights", "directional", "spherical",
@@ -32,7 +34,7 @@ pInt :: Parser Int
 pInt = fromInteger <$> integer tokenParser
 
 pDouble :: Parser Double
-pDouble = float tokenParser
+pDouble = fromInteger <$> integer tokenParser <|> float tokenParser
 
 pPositive :: (Num t, Ord t) => Parser t -> Parser t
 pPositive p = max 0 <$> p
