@@ -78,7 +78,7 @@ parseObjects = parseList parseObject
 
 parseLight :: Parser [String] (LightSource RGB)
 parseLight ("directional":r:g:b:i:x:y:z:_) = makeDirectional <$>
-    (cTimes <$> parseDouble i <*>
+    (cTimes <$> parsePositive parseDouble i <*>
         (makeRGB <$>
             parsePositive parseDouble r <*>
             parsePositive parseDouble g <*>
@@ -86,7 +86,7 @@ parseLight ("directional":r:g:b:i:x:y:z:_) = makeDirectional <$>
     (Vector <$> parseDouble x <*> parseDouble y <*> parseDouble z)
 parseLight ("directional":_) = Left $ missingString "directional"
 parseLight ("spherical":r:g:b:i:x:y:z:_) = makeSpherical <$>
-    (cTimes <$> parseDouble i <*>
+    (cTimes <$> parsePositive parseDouble i <*>
     (makeRGB <$>
         parsePositive parseDouble r <*>
         parsePositive parseDouble g <*>
