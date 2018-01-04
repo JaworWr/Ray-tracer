@@ -25,14 +25,14 @@ data Object t = Object {
 
 -- typ danych reprezentujący scenę
 data Scene t = Scene {
-    objects :: [Object t],
-    lights :: [LightSource t],
     pxWidth :: Int,
     pxHeight :: Int,
     scrWidth :: Double,
     scrHeight :: Double,
     depth :: Double,
-    bgColor :: t
+    bgColor :: t,
+    lights :: [LightSource t],
+    objects :: [Object t]
 } deriving (Eq, Show)
 
 -- typ danych reprezentujący obraz w postaci listy pikseli

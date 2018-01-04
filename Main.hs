@@ -34,4 +34,4 @@ main = do
     if null args
     then putStrLn "No input file specified"
     else tryIOError (readFile $ head args) >>=
-        either print (either putStrLn (showImage $ head args). parse)
+        either print (either putStrLn (showImage $ head args). parseScene (head args))

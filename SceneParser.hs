@@ -1,4 +1,4 @@
-module SceneParser (parse) where
+module SceneParser (parseScene) where
 
 import Scene
 import Geometry
@@ -56,8 +56,12 @@ pObjects :: Parser [Object RGB]
 pObjects = pKw "objects" >> many pObject
 
 pObject :: Parser (Object RGB)
-pObject = choice [
-    undefined
+pObject = Object <$> pGeometry <*> pSurface
+
+pGeometry :: Parser Geometry
+pGeometry = choice [
+    pKw "sphere" >> makeSphere <$> pVector <*> pPositive pDouble,
+    pKw "plane" >> makePlane <$> pVector <*> pVector
     ]
 
 pSurface :: Parser (Surface RGB)
@@ -70,11 +74,11 @@ pSurface = choice [
 
 pScene :: Parser (Scene RGB)
 pScene = Scene <$>
-    pObjects <*>
-    pLights <*>
     (pKw "imwidth" >> pPositive pInt) <*>
     (pKw "imheight" >> pPositive pInt) <*>
     (pKw "scrwidth" >> pPositive pDouble) <*>
     (pKw "scrheight" >> pPositive pDouble) <*>
     (pKw "depth" >> pPositive pDouble) <*>
-    option black (pKw "bgcolor" >> pRGB)
+    option black (pKw "bgcolor" >> pRGB) <*>
+    pLights <*>
+    pObjects
