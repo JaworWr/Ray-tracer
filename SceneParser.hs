@@ -34,7 +34,15 @@ pInt :: Parser Int
 pInt = fromInteger <$> integer tokenParser
 
 pDouble :: Parser Double
-pDouble = fromInteger <$> integer tokenParser <|> float tokenParser
+pDouble = do
+    sign <- getSign
+    n <- naturalOrFloat tokenParser
+    case n of
+        Left x -> return $ sign * fromInteger x
+        Right x -> return $ sign * x
+    where
+        pOp = reservedOp tokenParser
+        getSign = (pOp "-" >> return (-1)) <|> (optional (pOp "+") >> return 1)
 
 pPositive :: (Num t, Ord t) => Parser t -> Parser t
 pPositive p = max 0 <$> p
