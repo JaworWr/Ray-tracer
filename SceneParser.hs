@@ -31,7 +31,7 @@ tokenParser = makeTokenParser def
 pKw = reserved tokenParser
 
 pInt :: Parser Int
-pInt = fromInteger <$> integer tokenParser
+pInt = fromInteger <$> integer tokenParser <?> "Integer"
 
 pDouble :: Parser Double
 pDouble = do
@@ -40,6 +40,7 @@ pDouble = do
     case n of
         Left x -> return $ sign * fromInteger x
         Right x -> return $ sign * x
+    <?> "Double"
     where
         pOp = reservedOp tokenParser
         getSign = (pOp "-" >> return (-1)) <|> (optional (pOp "+") >> return 1)
