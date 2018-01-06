@@ -21,11 +21,13 @@ changeExt s = case dropWhileEnd (/= '.') s of
     [] -> s ++ ".bmp"
     s' -> s' ++ "bmp"
 
-showImage :: Color t => String -> Scene t -> IO ()
-showImage name s = do
-    let bmp = imageToBmp $ render s
+-- funkcja wyświetlająca utworzony obraz
+-- oraz zapisująca go w formacie bmp
+showImage :: Color t => String -> Image t -> IO ()
+showImage name i = do
+    let bmp = imageToBmp i
     writeBMP (changeExt name) bmp
-    G.display (G.InWindow name (pxWidth s, pxHeight s) (0, 0))
+    G.display (G.InWindow name (imWidth i, imHeight i) (0, 0))
         G.black (G.bitmapOfBMP bmp)
 
 main :: IO ()
@@ -34,4 +36,6 @@ main = do
     if null args
     then putStrLn "No input file specified"
     else tryIOError (readFile $ head args) >>=
-        either print (either putStrLn (showImage $ head args). parseScene (head args))
+        either print
+        (\s -> either putStrLn (showImage $ head args) $
+            render <$> parseScene (head args) s)
