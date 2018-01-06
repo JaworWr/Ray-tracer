@@ -59,7 +59,7 @@ pLights = pKw "lights" >> many pLight
 pLight :: Parser (LightSource RGB)
 pLight = choice [
     pKw "directional" >> makeDirectional <$> pPositive pDouble <*> pRGB <*> pVector,
-    pKw "spherical" >> makeDirectional <$> pPositive pDouble <*> pRGB <*> pVector
+    pKw "spherical" >> makeSpherical <$> pPositive pDouble <*> pRGB <*> pVector
     ]
 
 pObjects :: Parser [Object RGB]
