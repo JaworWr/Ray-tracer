@@ -71,8 +71,7 @@ traceRay d bg ls xs r = maybe bg calcRGB m where
     surfaceColor t o x (Mixed xs) =
         foldl (\acc (v, s) -> acc `cAdd` v `cTimes` surfaceColor t o x s) black xs
 
--- funkcja obliczająca ilość światła padającego na obiekt
--- poprzez śledzenie dodatkowego promienia
+-- funkcja sprawdzająca czy wybrany obiekt otrzymuje światło z badanego źródła
 traceShadow :: Color t => LightSource t -> Vector -> Vector -> [Object t] -> Ray -> t
 traceShadow l x n xs r = if isJust m then black else getLight l x n where
     m = closestIntersect r xs >>=

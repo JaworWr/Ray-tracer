@@ -8,7 +8,7 @@ eps = 0.00001
 inf :: Double
 inf = 1/0
 
--- Typ danych reprezentujący promień dany w postaci x + t*d
+-- typ danych reprezentujący promień dany w postaci x + t*d
 -- gdzie x to źródło promienia a d to wektor normalny wskazujący jego kierunek
 data Ray = Ray { origin :: Vector, dir :: Vector } deriving (Show, Eq)
 
@@ -86,6 +86,8 @@ getLight (Directional c i) _ n = max 0 (i `dot` n) `cTimes` c
 getLight (Spherical c s) x n = let d = s -. x in
     max 0 (normalize d `dot` n) / sqVecLen d `cTimes` c
 
+-- funkcja sprawdzająca, czy badany obiekt rzeczywiście blokuje rozważane źródło światła
+-- (tzn. czy znajduje się między źródłem światła a badaną powierzchnią)
 lIntersect :: LightSource t -> Double -> Vector -> Bool
 lIntersect (Directional _ _) _ _ = True
 lIntersect (Spherical _ s) d x = d * d < sqVecLen (x -. s)

@@ -75,9 +75,6 @@ type RGB = Vector
 makeRGB :: Double -> Double -> Double -> RGB
 makeRGB = Vector
 
-greyscaleToRGB :: Greyscale -> RGB
-greyscaleToRGB x = makeRGB x x x
-
 instance Color Vector where
     cAdd = (+.)
     cTimes = times
