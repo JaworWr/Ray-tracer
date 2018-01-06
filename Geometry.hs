@@ -3,7 +3,7 @@ module Geometry where
 import DataTypes
 
 eps :: Double
-eps = 0.00000001
+eps = 0.00001
 
 inf :: Double
 inf = 1/0
@@ -23,7 +23,7 @@ getRayPoint (Ray o d) t = o +. t `times` d
 -- funkcja obliczająca promień odbity do danego promienia w danym punkcie x
 -- względem wektora normalnego n
 reflectRay :: Vector -> Vector -> Ray -> Ray
-reflectRay x n (Ray _ d) = makeRay x $ d -. 2 * (n `dot` d) `times` n
+reflectRay x n (Ray _ d) = makeRay (x +. eps `times` n) $ d -. 2 * (n `dot` d) `times` n
 
 -- typ danych reprezentujący obiekty w przestrzeni trójwymiarowej
 data Geometry =
@@ -76,9 +76,9 @@ makeSpherical :: Color t => Double -> t -> Vector -> LightSource t
 makeSpherical i c = Spherical (i `cTimes` c)
 
 -- konstruktor promienia wyznaczającego oświetlenie obiektu
-makeShadowRay :: LightSource t -> Vector -> Ray
-makeShadowRay (Directional _ i) x = makeRay x i
-makeShadowRay (Spherical _ s) x = makeRay x (s -. x)
+makeShadowRay :: Vector -> LightSource t -> Vector -> Ray
+makeShadowRay n (Directional _ i) x = makeRay (x +. eps `times` n) i
+makeShadowRay n (Spherical _ s) x = makeRay (x +. eps `times` n) (s -. x)
 
 -- ilość światła padającego na obiekt
 getLight :: Color t => LightSource t -> Vector -> Vector -> t

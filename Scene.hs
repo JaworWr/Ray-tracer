@@ -46,7 +46,7 @@ data Image t = Image {
 -- dla której promień x + t*d przecina przecina pewien obiekt sceny, a także ów obiekt
 closestIntersect :: Ray -> [Object t] -> Maybe (Double, Object t)
 closestIntersect r = minIntersect
-    . filter ((> eps) . fst)
+    . filter ((> 0) . fst)
     . concatMap pairWithIntersects
     where
         pairWithIntersects o = map (\x -> (x, o)) $ intersect r $ geometry o
@@ -60,9 +60,9 @@ traceRay 0 bg _ _ _ = bg
 traceRay d bg ls xs r = maybe bg calcRGB m where
     m = closestIntersect r xs
     calcRGB (t, o) = surfaceColor t o (getRayPoint r t) (surface o)
-    surfaceColor t o x (Diffusive c) = foldl cAdd black
-        (map (\l -> traceShadow l x (normalVector (geometry o) x) xs
-            (makeShadowRay l x)) ls)
+    surfaceColor t o x (Diffusive c) = let n = normalVector (geometry o) x in
+        foldl cAdd black
+            (map (\l -> traceShadow l x n xs (makeShadowRay n l x)) ls)
         `cMult` c
     surfaceColor t o x Reflective =
         traceRay (d-1) bg ls xs (reflect (geometry o) x r)
