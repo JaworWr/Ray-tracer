@@ -59,16 +59,17 @@ traceRay :: Color t => Int -> t -> [LightSource t] -> [Object t] -> Ray -> t
 traceRay 0 bg _ _ _ = bg
 traceRay d bg ls xs r = maybe bg calcRGB m where
     m = closestIntersect r xs
-    calcRGB (t, o) = let x = getRayPoint r t in
-        case surface o of
-            Diffusive c -> foldl cAdd black
-                (map (\l -> traceShadow l x (normalVector (geometry o) x) xs
-                    (makeShadowRay l x)) ls)
-                `cMult` c
-            Reflective -> traceRay (d-1) bg ls xs (reflect (geometry o) x r)
-            Luminous c ->
-                normalVector (geometry o) x `dot` ((-1) `times` dir r) `cTimes` c
-            _ -> error "Not yet implemented"
+    calcRGB (t, o) = surfaceColor t o (getRayPoint r t) (surface o)
+    surfaceColor t o x (Diffusive c) = foldl cAdd black
+        (map (\l -> traceShadow l x (normalVector (geometry o) x) xs
+            (makeShadowRay l x)) ls)
+        `cMult` c
+    surfaceColor t o x Reflective =
+        traceRay (d-1) bg ls xs (reflect (geometry o) x r)
+    surfaceColor t o x (Luminous c) =
+        normalVector (geometry o) x `dot` ((-1) `times` dir r) `cTimes` c
+    surfaceColor t o x (Mixed xs) =
+        foldl (\acc (v, s) -> acc `cAdd` v `cTimes` surfaceColor t o x s) black xs
 
 -- funkcja obliczająca ilość światła padającego na obiekt
 -- poprzez śledzenie dodatkowego promienia
