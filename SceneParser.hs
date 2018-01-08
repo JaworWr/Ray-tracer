@@ -51,10 +51,12 @@ pDouble = do
         pOp = reservedOp tokenParser
         getSign = (pOp "-" >> return (-1)) <|> (optional (pOp "+") >> return 1)
 
+-- parsuje daną iczbę z minimalną wartością, w przypadku, gdy otrzymana liczba
+-- jest mniejsza, zwraca wartość minimalną
 pMin :: (Num t, Ord t) => t -> Parser t -> Parser t
 pMin m p = max m <$> p
 
--- parsuje liczbę a następnie zamienia liczby ujemne na 0
+-- parsuje liczbę a z minimalną wartością 0
 pPositive :: (Num t, Ord t) => Parser t -> Parser t
 pPositive = pMin 0
 
