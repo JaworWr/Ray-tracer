@@ -60,17 +60,17 @@ traceRay :: Color t => Int -> t -> [LightSource t] -> [Object t] -> Ray -> t
 traceRay 0 bg _ _ _ = bg
 traceRay d bg ls xs r = maybe bg calcRGB m where
     m = closestIntersect r xs
-    calcRGB (t, o) = surfaceColor o (getRayPoint r t) (surface o)
-    surfaceColor o x (Diffusive c) = let n = normalVector (geometry o) x in
+    calcRGB (t, o) = surfaceColor (geometry o) (getRayPoint r t) (surface o)
+    surfaceColor g x (Diffusive c) = let n = normalVector g x in
         foldl cAdd black
             (map (\l -> traceShadow l x n xs (makeShadowRay n l x)) ls)
         `cMult` c
-    surfaceColor o x Reflective =
-        traceRay (d-1) bg ls xs (reflect (geometry o) x r)
-    surfaceColor o x (Luminous c) =
-        normalVector (geometry o) x `dot` ((-1) `times` dir r) `cTimes` c
-    surfaceColor o x (Mixed xs) =
-        foldl (\acc (v, s) -> acc `cAdd` v `cTimes` surfaceColor o x s) black xs
+    surfaceColor g x Reflective =
+        traceRay (d-1) bg ls xs (reflect g x r)
+    surfaceColor g x (Luminous c) =
+        normalVector g x `dot` ((-1) `times` dir r) `cTimes` c
+    surfaceColor g x (Mixed xs) =
+        foldl (\acc (v, s) -> acc `cAdd` v `cTimes` surfaceColor g x s) black xs
 
 -- funkcja sprawdzająca czy wybrany obiekt otrzymuje światło z badanego źródła
 traceShadow :: Color t => LightSource t -> Vector -> Vector -> [Object t] -> Ray -> t
