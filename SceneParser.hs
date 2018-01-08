@@ -36,7 +36,7 @@ pKw = reserved tokenParser
 
 -- parser liczb całkowitych
 pInt :: Parser Int
-pInt = fromInteger <$> integer tokenParser <?> "Integer"
+pInt = fromInteger <$> integer tokenParser <?> "integer"
 
 -- parser liczb typu Double, parsuje również liczby całkowite
 pDouble :: Parser Double
@@ -46,7 +46,7 @@ pDouble = do
     case n of
         Left x -> return $ sign * fromInteger x
         Right x -> return $ sign * x
-    <?> "Double"
+    <?> "double"
     where
         pOp = reservedOp tokenParser
         getSign = (pOp "-" >> return (-1)) <|> (optional (pOp "+") >> return 1)
@@ -62,7 +62,7 @@ pPositive = pMin 0
 
 -- parser wektorów
 pVector :: Parser Vector
-pVector = Vector <$> pDouble <*> pDouble <*> pDouble
+pVector = Vector <$> pDouble <*> pDouble <*> pDouble <?> "vector"
 
 -- parser kolorów w postaci RGB
 pRGB :: Parser RGB
