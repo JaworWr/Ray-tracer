@@ -28,7 +28,8 @@ Plik tekstowy opisujący scenę składa się z następujących części:
 \item\textit{imwidth} oraz \textit{height}: liczby całkowite reprezentujące odpowiednio szerokość oraz wysokość obrazka w pikselach, podanych jako liczby całkowite
 \item\textit{imwidth} oraz \textit{height}: liczby rzeczywiste reprezentujące odpowiednio szerokość oraz wysokość prostokąta, przez który obserwowana jest scena. podanych jako liczby całkowite
 \item\textit{depth}: liczba rzeczywista reprezentująca odległość ogniska od prostokąta
-\item\textit{bgcolor}: opcjonalny parametr oznaczający kolor tła. Domyślnie jest to kolor czarny.
+\item\textit{bgcolor}: opcjonalny parametr oznaczający kolor tła. Domyślnie jest to kolor czarny
+\item\textit{raydepth}: opcjonalny parametr określający maksymalną głębokość rekursji podczas śledzenia promieni. Domyślną wartością jest 4
 \end{itemize}
 \item\textbf{Źródła światła} (opcjonalne). Lista źródeł światła rozpoczynająca się słowem kluczowym \textit{lights}. Dostępne są następujące źródła światła:
 \begin{itemize}
@@ -51,4 +52,13 @@ oraz następujące rodzaje powierzchni:
 W celu ułatwienia procesu parsowania użyłem biblioteki Parsec, która dostarcza wielu funkcji pomocnych podczas tworzenia parserów.
 \section{Typy danych}
 
+\section{Umiejscowienie kamery}
+Kolejnym problemem, jaki napotkałem, było odpowiednie ustawienie kamery. Aby maksymalnie uprościć obliczenia, jak również zapewnić użytkownikowi łatwe rozmieszczanie obiektów na scenie zdecydowałem się rozwiązać ten problem w sposób następujący:
+\begin{itemize}
+\item Kamera patrzy w kierunku wyznaczonym przez wektor $(0, 0, 1)$.
+\item Środek prostokąta widoku znajduje się w punkcie $(0, 0, 0)$.
+\item Ognisko widoku znajduje się w punkcie $(0, 0, -\textit{depth})$.
+\end{itemize}
+\section{Odbijanie promieni}
+Implementując powierzchnie odbijające światło, uczyniłem śledzenie promieni procesem rekurencyjnym. Dzięki temu, aby wyznaczyć kolor danego punktu powierzchni lustrzanej wystarczy rekurencyjnie wyznaczyć kolor obiektu, którego obraz odbija się w badanym punkcie, rekurencyjnie śledząc odpowiednio wyznaczony promień odbity. Niestety, takie podejście dopuszcza możliwość nieskończonej rekursji (np. gdy scena składa się z dwóch równoległych, lustrzanych płaszczyzn). Aby temu zapobiec ograniczyłem głębokość rekurencyjnych wywołań funkcji. Domyślnie dopuszczalne są maksymalnie 4 wywołania, użytkownik może jednak ustawić własną wartość w nagłówku pliku opisującego scenę. W przypadku przekroczenia maksymalnej głębokości rekursji zwracany jest kolor tła (tzn. promień uznaje się za niekolidujący z żadnym obiektem sceny).
 \end{document}
