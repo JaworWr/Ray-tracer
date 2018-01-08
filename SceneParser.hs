@@ -21,8 +21,8 @@ def = emptyDef {
     caseSensitive = False,
     opStart = oneOf "+-",
     opLetter = oneOf "+-",
-    reservedNames = ["imwidth", "imheight", "scrwidth",
-                    "scrheight", "depth", "bgcolor", "raydepth",
+    reservedNames = ["imwidth", "imheight", "canvwidth",
+                    "canvheight", "depth", "bgcolor", "raydepth",
                     "lights", "directional", "spherical",
                     "objects", "sphere", "plane",
                     "diffusive", "reflective", "luminous", "mixed",
@@ -116,8 +116,8 @@ pScene :: Parser (Scene RGB)
 pScene = Scene <$>
     (pKw "imwidth" >> pPositive pInt) <*>
     (pKw "imheight" >> pPositive pInt) <*>
-    (pKw "scrwidth" >> pPositive pDouble) <*>
-    (pKw "scrheight" >> pPositive pDouble) <*>
+    (pKw "canvwidth" >> pPositive pDouble) <*>
+    (pKw "canvheight" >> pPositive pDouble) <*>
     (pKw "depth" >> pMin eps pDouble) <*>
     option black (pKw "bgcolor" >> pRGB) <*>
     option 4 (pKw "rayDepth" >> pMin 1 pInt) <*>
