@@ -7,7 +7,7 @@ import Data.Maybe
 -- funkcja renderująca scenę
 render :: Color t => Scene t -> Image t
 render s = Image (pxWidth s) (pxHeight s) $
-    map (traceRay 5 (bgColor s) (lights s) (objects s)) (makeRays s)
+    map (traceRay (rayDepth s) (bgColor s) (lights s) (objects s)) (makeRays s)
 
 -- typ danych reprezentujący możliwe rodzaje powierzchni obiektów
 data Surface t =
@@ -31,6 +31,7 @@ data Scene t = Scene {
     scrHeight :: Double,
     depth :: Double,
     bgColor :: t,
+    rayDepth :: Int,
     lights :: [LightSource t],
     objects :: [Object t]
 } deriving (Eq, Show)

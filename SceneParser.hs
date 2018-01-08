@@ -22,7 +22,7 @@ def = emptyDef {
     opStart = oneOf "+-",
     opLetter = oneOf "+-",
     reservedNames = ["imwidth", "imheight", "scrwidth",
-                    "scrheight", "depth", "bgcolor",
+                    "scrheight", "depth", "bgcolor", "raydepth",
                     "lights", "directional", "spherical",
                     "objects", "sphere", "plane",
                     "diffusive", "reflective", "luminous", "mixed",
@@ -51,9 +51,12 @@ pDouble = do
         pOp = reservedOp tokenParser
         getSign = (pOp "-" >> return (-1)) <|> (optional (pOp "+") >> return 1)
 
+pMin :: (Num t, Ord t) => t -> Parser t -> Parser t
+pMin m p = max m <$> p
+
 -- parsuje liczbę a następnie zamienia liczby ujemne na 0
 pPositive :: (Num t, Ord t) => Parser t -> Parser t
-pPositive p = max 0 <$> p
+pPositive = pMin 0
 
 -- parser wektorów
 pVector :: Parser Vector
@@ -115,7 +118,8 @@ pScene = Scene <$>
     (pKw "imheight" >> pPositive pInt) <*>
     (pKw "scrwidth" >> pPositive pDouble) <*>
     (pKw "scrheight" >> pPositive pDouble) <*>
-    (pKw "depth" >> pPositive pDouble) <*>
+    (pKw "depth" >> pMin eps pDouble) <*>
     option black (pKw "bgcolor" >> pRGB) <*>
+    option 4 (pKw "rayDepth" >> pMin 1 pInt) <*>
     pLights <*>
     pObjects
