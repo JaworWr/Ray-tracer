@@ -13,43 +13,7 @@
 \section{Reprezentacja sceny}
 Istotnym problemem, jaki napotkałem podczas pisania programu, było zaprojektowanie odpowiedniego formatu tekstowego do reprezentacji sceny. Format ten powinien być przede wszystkim czytelny. Musi on także zapewniać możliwość łatwego rozszerzania, w przypadku dodania do programu nowych obiektów, rodzajów powierzchni itp.
 
-Zaprojektowany przeze mnie format wygląda następująco:
-\begin{itemize}
-\item Wiersze rozpoczynające się od znaku \# są traktowane jako komentarze i ignorowane przez parser.
-\item Wielkość liter w słowach kluczowych nie ma znaczenia
-\item Wektory oraz punkty w przestrzeni trójwymiarowej przedstawione są jako trzy liczby rzeczywiste oddzielone białymi znakami
-\item W podobny sposób reprezentowane są kolory w postaci RGB, kolejne liczby oznaczają wartości na odpowiednich kanałach
-\item W parserze zdefiniowano również stałe reprezentujące podstawowe kolory. Są to: \textit{black}, \textit{white}, \textit{red}, \textit{green}, \textit{blue}, \textit{cyan}, \textit{magenta} oraz \textit{yellow}
-\end{itemize}
-Plik tekstowy opisujący scenę składa się z następujących części:
-\begin{enumerate}
-\item\textbf{Nagłówek} (obowiązkowy), każda z poniższych informacji poprzedzona jest odpowiednim słowem kluczowym:
-\begin{itemize}
-\item\textit{imWidth} oraz \textit{imWeight}: liczby całkowite reprezentujące odpowiednio szerokość oraz wysokość obrazka w pikselach, podanych jako liczby całkowite
-\item\textit{canvWidth} oraz \textit{canvHeight}: liczby rzeczywiste reprezentujące odpowiednio szerokość oraz wysokość prostokąta, przez który obserwowana jest scena. podanych jako liczby całkowite
-\item\textit{depth}: liczba rzeczywista reprezentująca odległość ogniska od prostokąta
-\item\textit{bgcolor}: opcjonalny parametr oznaczający kolor tła. Domyślnie jest to kolor czarny
-\item\textit{raydepth}: opcjonalny parametr określający maksymalną głębokość rekursji podczas śledzenia promieni. Domyślną wartością jest 4
-\end{itemize}
-\item\textbf{Źródła światła} (opcjonalne). Lista źródeł światła rozpoczynająca się słowem kluczowym \textit{lights}. Dostępne są następujące źródła światła:
-\begin{itemize}
-\item\textit{directional i c d}: kierunkowe źródło światła o intensywności wyznaczonej przez liczbę rzeczywistą \textit{i}, o kolorze \textit{c}, świecące w kierunku wskazywanym przez wektor \textit{d}
-\item\textit{spherical i c x}: punktowe źródło światła o intensywności \textit{i}, kolorze \textit{c}, znajdujące się w punkcie \textit{x}
-\end{itemize}
-\item\textbf{Obiekty} (opcjonalne). Lista znajdujących się na scenie obiektów. Każdy obiekt przedstawiony jest w postaci \textit{kształt powierzchnia}. Program udostępnia następujące kształty:
-\begin{itemize}
-\item\textit{sphere x r}: kula o środku \textit{x} i promieniu \textit{r}
-\item\textit{plane x d}: płaszczyzna zawierająca punkt \textit{x} o wektorze normalnym równoległym do wektora \textit{d}
-\end{itemize}
-oraz następujące rodzaje powierzchni:
-\begin{itemize}
-\item\textit{diffusive c}: powierzchnia rozpraszająca światło, w kolorze \textit{c}
-\item\textit{reflective}: powierzchnia odbijająca światło
-\item\textit{luminous c}: powierzchnia świecąca własnym światłem, w kolorze \textit{c}
-\item\textit{mixed $t_{1}\ s_{1}\ [t_{2}]\ [s_{2}]$ ...}: powierzchnia mieszana, gdzie wartości \textit{$t_{i}$} wyznaczają proporcje, a \textit{$s_{i}$} to mieszane rodzaje powierzchni
-\end{itemize}
-\end{enumerate}
-W celu ułatwienia procesu parsowania użyłem biblioteki Parsec, która dostarcza wielu funkcji pomocnych podczas tworzenia parserów.
+Opracowany przeze mnie format został szczegółowo omówiony w dokumentacji projektu. W celu ułatwienia procesu parsowania użyłem biblioteki Parsec, która dostarcza wielu funkcji pomocnych podczas tworzenia parserów.
 \section{Typy danych}
 Istotnym problemem podczas pracy nad projektem było stworzenie odpowiednich typów danych oraz klas typów. W moim programie zdecydowałem się na reprezentację większości typów związanych z opisem sceny jako abstrakcyjnych typów danych. Umożliwia to reprezentację zawartości sceny w postaci list. Z kolei kolory stanowią w moim programie klasę typów. Umożliwia to łatwe dodanie kolejnych sposobów ich reprezentacji oraz wyrenderowanie sceny z dowolnie wybranym z nich.
 \section{Umiejscowienie kamery}
