@@ -51,5 +51,36 @@ oraz następujące rodzaje powierzchni:
 \end{enumerate}
 \section{Dokumentacja kodu}
 \subsection{Datatypes.hs}
-\textit{Vector} - typ danych reprezentujący wektory trójwymiarowe
+Plik zawiera definicje podstawowych typów danych wykorzystywanych w programie
+\begin{itemize}
+\item\textit{Vector} - typ danych reprezentujący wektory w przestrzeni trójwymiarowej.\\Konstruktor:
+\begin{itemize}
+\textit{Vector :: Double -> Double -> Double} - tworzy wektor o podanych współrzędnych
+\end{itemize}
+\item\textit{(+.) :: Vector -> Vector -> Vector} - operator dodawania wektorów
+\item\textit{(-.) :: Vector -> Vector -> Vector} - operator odejmowania wektorów
+\item\textit{times :: Double -> Vector -> Vector} - mnożenie wektora przez skalar
+\item\textit{dot :: Vector -> Vector -> Double} - iloczyn skalarny wektorów
+\item\textit{sqVecLen :: Vector -> Double} - kwadrat długości danego wektora
+\item\textit{vecLen :: Vector -> Double} - długość danego wektora
+\item\textit{normalize :: Vector -> Vector} - normalizuje wektor, tzn. zwraca wektor o długości 1 zwrócony w tym samym kierunku co dany wektor
+\item\textit{Color t} - klasa reprezentacji kolorów
+\begin{itemize}
+\item\textit{cAdd :: t -> t -> t} - suma kolorów
+\item\textit{cTimes :: Double -> t -> t} - mnożenie koloru przez skalar
+\item\textit{cMult :: t -> t -> t} - iloczyn kolorów
+\item\textit{toWordList :: t -> [Word8]} - zamiana koloru na tablicę 4 wartości typu Word8, reprezentujących kolor w formacie RGBA32
+\item\textit{black :: t, white :: t} - stałe reprezentujące odpowiednio czerń i biel
+\item Instancje: \textit{Double}, \textit{Vector}
+\end{itemize}
+\item\textit{Greyscale} - alias typu Double, reprezentacja odcieni szarości
+\item\textit{RGB} - alias typu Vector, reprezentacja kolorów w postaci RGB
+\item\textit{makeRGB :: Double -> Double -> Double -> RGB} - alias konstruktora \textit{Vector}
+\item\textit{red :: RGB, green :: RGB, blue :: RGB, cyan :: RGB, magenta :: RGB, yellow :: RGB} - stałe reprezentujące odpowiednio czerwień, zieleń,  błękit, cyjan, fuksję i żółć
+\end{itemize}
+\subsection{Geometry.hs}
+Plik zawiera typy danych do reprezentacji geometrii obiektów w przestrzeni trójwymiarowej oraz funkcje umożliwiające m. in. wyznaczanie punktów przecięcia promieni z obiektem czy promieni odbitych
+\begin{itemize}
+\item\textit{eps :: Double} - stała reprezentująca odległość, o którą zostanie przemieszczony początek promieni odbitych oraz promieni wyznaczających cień
+\end{itemize}
 \end{document}
