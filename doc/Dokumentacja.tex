@@ -55,7 +55,7 @@ Plik zawiera definicje podstawowych typów danych wykorzystywanych w programie
 \begin{itemize}
 \item\textit{Vector} - typ danych reprezentujący wektory w przestrzeni trójwymiarowej.\\Konstruktor:
 \begin{itemize}
-\textit{Vector :: Double -> Double -> Double} - tworzy wektor o podanych współrzędnych
+\item\textit{Vector Double Double Double} - tworzy wektor o podanych współrzędnych
 \end{itemize}
 \item\textit{(+.) :: Vector -> Vector -> Vector} - operator dodawania wektorów
 \item\textit{(-.) :: Vector -> Vector -> Vector} - operator odejmowania wektorów
@@ -82,5 +82,22 @@ Plik zawiera definicje podstawowych typów danych wykorzystywanych w programie
 Plik zawiera typy danych do reprezentacji geometrii obiektów w przestrzeni trójwymiarowej oraz funkcje umożliwiające m. in. wyznaczanie punktów przecięcia promieni z obiektem czy promieni odbitych
 \begin{itemize}
 \item\textit{eps :: Double} - stała reprezentująca odległość, o którą zostanie przemieszczony początek promieni odbitych oraz promieni wyznaczających cień
+\item\textit{Ray} - typ danych reprezentujący promienie.\\Konstruktor:
+\begin{itemize}
+\item\textit{Ray { origin :: Vector, dir :: Vector }} - \textit{Ray x d} tworzy promień wyznaczony przez półprostą o równaniu $y = x + td\ (t > 0)$. Wektor \textit{d} musi być wektorem znormalizowanym.
+\end{itemize}
+\item\textit{makeRay :: Vector -> Vector -> Ray} - normalizuje drugi argument, po czym wywołuje konstruktor \textit{Ray}
+\item\textit{getRayPoint :: Ray -> Double -> Vector} - \textit{getRayPoint r t} zwraca punkt otrzymany po podstawieniu wartości \textit{t} do równania opisującego promień \textit{r}
+\item\textit{reflectRay :: Vector -> Vector -> Ray -> Ray} - \textit{reflectRay x n r} zwraca promień o początku w punkcie \textit{x} (leżącym na promieniu \textit{r}), powstały poprzez odbicie promienia \textit{r} względem wektora normalnego \textit{n}
+\item\textit{Geometry} - typ danych reprezentujący geometrie obiektów w przestrzeni trójwymiarowej. Konstruktory:
+\begin{itemize}
+\item\textit{Sphere Vector Double} - kula opisana przez jej środek oraz promień
+\item\textit{Plane Vector Vector} - płaszczyzna opisana przez jeden z jej punktów oraz wektor normalny
+\end{itemize}
+\item\textit{makeSphere :: Vector -> Double -> Geometry} - alias konstruktora \textit{Sphere}
+\item\textit{makePlane :: Vector -> Vector -> Geometry} - normalizuje drugi argument, po czym wywołuje konstruktor \textit{Plane}
+\item\textit{normalVector :: Geometry -> Vector -> Vector} - wektor normalny prostopadły do powierzchni w danym punkcie
+\item\textit{intersect :: Ray -> Geometry -> [Double]} - zwraca listę wartości $t$, dla których dany promień, opisany równaniem $y = x+td$, przecina dany obiekt. Wywołanie funkcji \textit{getRayPoint} pozwala dokładnie wyznaczyć te punkty.
+\item\textit{reflect :: Geometry -> Vector -> Ray -> Ray} - \textit{reflect g x r} zwraca promień powstały po odbiciu promienia \textit{r} w punkcie \textit{x} należącym do obiektu \textit{g}
 \end{itemize}
 \end{document}
