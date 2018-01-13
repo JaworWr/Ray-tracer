@@ -80,7 +80,7 @@ pRGB = choice [
 
 -- parser źródeł światła
 pLights :: Parser [LightSource RGB]
-pLights = pKw "lights" >> many pLight
+pLights = (pKw "lights" >> many pLight) <|> return []
 
 -- parser pojedynczego źródła światła
 pLight :: Parser (LightSource RGB)
@@ -91,7 +91,7 @@ pLight = choice [
 
 -- parser obiektów
 pObjects :: Parser [Object RGB]
-pObjects = pKw "objects" >> many pObject
+pObjects = (pKw "objects" >> many pObject) <|> return []
 
 -- parser pojedynczego obiektu
 pObject :: Parser (Object RGB)
