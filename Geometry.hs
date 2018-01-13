@@ -3,10 +3,7 @@ module Geometry where
 import DataTypes
 
 eps :: Double
-eps = 0.00001
-
-inf :: Double
-inf = 1/0
+eps = 1e-5
 
 -- typ danych reprezentujący promień dany w postaci x + t*d
 -- gdzie x to źródło promienia a d to wektor normalny wskazujący jego kierunek
