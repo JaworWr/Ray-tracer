@@ -10,6 +10,8 @@
 \author{Michał Jaworski}
 \begin{document}
 \maketitle
+\section{Kompilacja programu}
+Program jest kompilowany z użyciem środowiska Cabal. Aby móc go skompilować należy najpierw, a pomocą polecenia \textit{cabal install}, doinstalować pakiety \textit{parsec}, \textit{bmp} oraz \textit{gloss}.
 \section{Używanie programu}
 Program należy wywołać z wiersza poleceń podając jako argument plik zawierający opis sceny. Po uruchomieniu, jeśli plik został prawidłowo wczytany, program wyświetli wygenerowany obraz oraz zapisze go w formacie BMP.
 \section{Format opisu sceny}
@@ -99,5 +101,27 @@ Plik zawiera typy danych do reprezentacji geometrii obiektów w przestrzeni tró
 \item\textit{normalVector :: Geometry -> Vector -> Vector} - wektor normalny prostopadły do powierzchni w danym punkcie
 \item\textit{intersect :: Ray -> Geometry -> [Double]} - zwraca listę wartości $t$, dla których dany promień, opisany równaniem $y = x+td$, przecina dany obiekt. Wywołanie funkcji \textit{getRayPoint} pozwala dokładnie wyznaczyć te punkty.
 \item\textit{reflect :: Geometry -> Vector -> Ray -> Ray} - \textit{reflect g x r} zwraca promień powstały po odbiciu promienia \textit{r} w punkcie \textit{x} należącym do obiektu \textit{g}
+\item\textit{LightSource t} - typ danych reprezentujący źródło światła, wykorzystujący reprezentację koloru \textit{t}. Konstruktory:
+\begin{itemize}
+\item\textit{Directional t Vector} - światło kierunkowe o określonym kolorze padające w kierunku określonym poprzez wektor normalny
+\item\textit{Spherical t Vector} - punktowe źródło światłą zdefiniowane poprzez jego kolor i położenie
+\end{itemize}
+\item\textit{makeDirectional :: Color t => Double -> t -> Vector -> LightSource t} - \textit{makeDirectional i c d} tworzy kierunkowe źródło światła o intensywności \textit{i} oraz kolorze \textit{c}, świecące w kierunku wyznaczonym przez wektor \textit{d}
+\item\textit{makeSpherical :: Color t => Double -> t -> Vector -> LightSource t} - \textit{makeSpherical i c x} tworzy kierunkowe źródło światła o intensywności \textit{i} oraz kolorze \textit{c}, znajdujące się w punkcie \textit{x}
+\item\textit{makeShadowRay :: Vector -> LightSource t -> Vector -> Ray} - \textit{makeShadowRay n s x} tworzy promień pozwalający ustalić, czy punkt \textit{x} o wektorze normalnym powierzchni \textit{n} znajduje się w cieniu podczas rozważania źródła światła \textit{s}
+\item\textit{getLight :: Color t => LightSource t -> Vector -> Vector -> t} - \textit{getLight s x n} zwraca ilość światła padającego na punkt \textit{x}, o wektorze normalnym powierzchni \textit{n}, ze źródła \textit{s}
+\item\textit{lIntersect :: LightSource t -> Double -> Vector -> Bool} - sprawdza, czy dany obiekt blokuje światło dla drugiego obiektu, podanego przez stałą \textit{t}. Funkcja zakłada, że oba obiekty przecinają ten sam promień
+\end{itemize}
+\subsection{Scene.hs}
+Plik zawierający funkcje przeprowadzające renderowanie sceny
+\begin{itemize}
+\item\textit{render :: Color t => Scene t -> Image t} - główna funkcja do renderowania sceny
+\item\textit{Surface t} - typ danych reprezentujący powierzchnie, wykorzystujący reprezentację kolorów \textit{t}. Konstruktory:
+\begin{itemize}
+\item\textit{Diffusive t} - powierzchnia rozpraszająca światło, o określonym kolorze
+\item\textit{Reflective} - powierzchnia odbijająca światło
+\item\textit{Luminous t} - powierzchnia świecąca własnym światłem, o określonym kolorze
+\item\textit{Mixed [(Double, Surface t)]} - powierzchnia powstała poprzez zmieszanie powyższych rodzajów powierzchni w określonych proporcjach
+\end{itemize}
 \end{itemize}
 \end{document}
