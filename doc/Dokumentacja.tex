@@ -86,7 +86,7 @@ Plik zawiera typy danych do reprezentacji geometrii obiektów w przestrzeni tró
 \item\textit{eps :: Double} - stała reprezentująca odległość, o którą zostanie przemieszczony początek promieni odbitych oraz promieni wyznaczających cień
 \item\textit{Ray} - typ danych reprezentujący promienie.\\Konstruktor:
 \begin{itemize}
-\item\textit{Ray { origin :: Vector, dir :: Vector }} - \textit{Ray x d} tworzy promień wyznaczony przez półprostą o równaniu $y = x + td\ (t > 0)$. Wektor \textit{d} musi być wektorem znormalizowanym.
+\item\textit{Ray \{ origin :: Vector, dir :: Vector \}} - \textit{Ray x d} tworzy promień wyznaczony przez półprostą o równaniu $y = x + td\ (t > 0)$. Wektor \textit{d} musi być wektorem znormalizowanym.
 \end{itemize}
 \item\textit{makeRay :: Vector -> Vector -> Ray} - normalizuje drugi argument, po czym wywołuje konstruktor \textit{Ray}
 \item\textit{getRayPoint :: Ray -> Double -> Vector} - \textit{getRayPoint r t} zwraca punkt otrzymany po podstawieniu wartości \textit{t} do równania opisującego promień \textit{r}
@@ -123,5 +123,38 @@ Plik zawierający funkcje przeprowadzające renderowanie sceny
 \item\textit{Luminous t} - powierzchnia świecąca własnym światłem, o określonym kolorze
 \item\textit{Mixed [(Double, Surface t)]} - powierzchnia powstała poprzez zmieszanie powyższych rodzajów powierzchni w określonych proporcjach
 \end{itemize}
+\item\textit{Object t} - typ danych reprezentujący obiekty sceny. Konstruktor:
+\begin{itemize}
+\item\textit{Object \{
+    geometry :: Geometry,
+    surface :: Surface t
+\}} - obiekt zdefiniowany przez jego kształt i rodzaj powierzchni
+\end{itemize}
+\item\textit{Scene t} - typ danych przechowujący informacje o scenie. Konstruktor:
+\begin{itemize}
+\item\textit{Scene \{
+    pxWidth :: Int,
+    pxHeight :: Int,
+    scrWidth :: Double,
+    scrHeight :: Double,
+    depth :: Double,
+    bgColor :: t,
+    rayDepth :: Int,
+    lights :: [LightSource t],
+    objects :: [Object t]
+\}} - zbiór informacji opisujących scenę. Są to kolejno: wymiary gotowego obrazu, wymiary płótna na scenie, odległość ogniska od płótna, kolor tła, maksymalna głębokość rekursji dla promieni odbitych, lista źródeł światła oraz lista obiektów
+\end{itemize}
+\item\textit{Image t} - typ danych reprezentujący gotowy obraz. Konstruktor:
+\begin{itemize}
+\item\textit{Image \{
+    imWidth :: Int,
+    imHeight :: Int,
+    imPixels :: [t]
+\}} - obraz opisany przez jego wymiary oraz zbiór pikseli w wybranej reprezentacji koloru
+\end{itemize}
+\item\textit{closestIntersect :: Ray -> [Object t] -> Maybe (Double, Object t)} - funkcja znajdująca najmniejsze $t > 0$ takie, że $x + td$ jest punktem przecięcia danego promienia z pewnym obiektem z danej listy oraz obiekt, z którym przecięcie w tym punkcie następuje. Gdy takie $t$ nie istnieje, zwracana jet wartość \textit{Nothing}
+\item\textit{traceRay :: Color t => Int -> t -> [LightSource t] -> [Object t] -> Ray -> t} - funkcja śledząca promień w celu ustalenia koloru badanego punktu obiektu. Jej argumenty to kolejno: maksymalna głębokość rekursji, kolor tła, lista źródeł światła, lista obiektów oraz badany promień
+\item\textit{traceShadow :: Color t => LightSource t -> Vector -> Vector -> [Object t] -> Ray -> t} - funkcja śledząca promień w celu ustalenia, czy dany punkt znajduje się w cieniu. Jej argumenty to kolejno: badane źródło światła, rozważany punkt, wektor normalny prostopadły do powierzchni w tym punkcie, lista obiektów oraz badane źródło światła
+\item\textit{makeRays :: Scene t -> [Ray]} - wyznacza listę promieni odpowiadających pikselom gotowego obrazu. Ich śledzenie pozwala utworzyć ten obraz
 \end{itemize}
 \end{document}
