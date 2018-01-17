@@ -67,8 +67,7 @@ traceRay d bg ls xs r = maybe bg calcRGB m where
         `cMult` c
     surfaceColor g x Reflective =
         traceRay (d-1) bg ls xs (reflect g x r)
-    surfaceColor g x (Luminous c) =
-        normalVector g x `dot` ((-1) `times` dir r) `cTimes` c
+    surfaceColor g x (Luminous c) = c
     surfaceColor g x (Mixed xs) =
         foldl (\acc (v, s) -> acc `cAdd` v `cTimes` surfaceColor g x s) black xs
 
