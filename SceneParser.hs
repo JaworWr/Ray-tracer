@@ -11,7 +11,7 @@ import Text.Parsec.String
 
 -- główna funkcja parsująca scenę
 parseScene :: String -> String -> Either String (Scene RGB)
-parseScene name s = case parse pScene name s of
+parseScene name s = case parse pMain name s of
     Left e -> Left $ show e
     Right s -> return s
 
@@ -125,3 +125,6 @@ pScene = Scene <$>
     option 4 (pKw "rayDepth" >> pMin 1 pInt) <*>
     pLights <*>
     pObjects
+
+pMain :: Parser (Scene RGB)
+pMain = whiteSpace tokenParser >> pScene <* eof
