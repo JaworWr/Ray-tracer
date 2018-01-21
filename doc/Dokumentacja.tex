@@ -11,7 +11,12 @@
 \begin{document}
 \maketitle
 \section{Kompilacja programu}
-Program jest kompilowany z użyciem środowiska Cabal. Aby móc go skompilować należy najpierw, a pomocą polecenia \textit{cabal install}, doinstalować pakiety \textit{parsec}, \textit{bmp} oraz \textit{gloss}.
+Program jest kompilowany z użyciem środowiska Cabal. Wymaga on zainstalowania następujących dodatkowych pakietów:
+\begin{itemize}
+\item\textit{parsec}, używany do parsowania plików z opisem sceny
+\item\textit{bmp}, używany do zapisywania obrazów w formacie BMP
+\item\textit{gloss}, używany do wyświetlania obrazów
+\end{itemize}
 \section{Używanie programu}
 Program należy wywołać z wiersza poleceń podając jako argument plik zawierający opis sceny. Po uruchomieniu, jeśli plik został prawidłowo wczytany, program wyświetli wygenerowany obraz oraz zapisze go w formacie BMP.
 \section{Format opisu sceny}
@@ -27,21 +32,21 @@ Plik tekstowy opisujący scenę składa się z następujących części:
 \begin{enumerate}
 \item\textbf{Nagłówek} (obowiązkowy), każda z poniższych informacji poprzedzona jest odpowiednim słowem kluczowym:
 \begin{itemize}
-\item\textit{imWidth} oraz \textit{imWeight}: liczby całkowite reprezentujące odpowiednio szerokość oraz wysokość obrazka w pikselach, podanych jako liczby całkowite
-\item\textit{canvWidth} oraz \textit{canvHeight}: liczby rzeczywiste reprezentujące odpowiednio szerokość oraz wysokość prostokąta, przez który obserwowana jest scena. podanych jako liczby całkowite
-\item\textit{depth}: liczba rzeczywista reprezentująca odległość ogniska od prostokąta
-\item\textit{bgcolor}: opcjonalny parametr oznaczający kolor tła. Domyślnie jest to kolor czarny
-\item\textit{raydepth}: opcjonalny parametr określający maksymalną głębokość rekursji podczas śledzenia promieni. Domyślną wartością jest 4
+\item\textit{imWidth} oraz \textit{imHeight}: liczby całkowite reprezentujące odpowiednio szerokość oraz wysokość obrazka w pikselach, podanych jako liczby całkowite
+\item\textit{canvWidth} oraz \textit{canvHeight}: liczby rzeczywiste reprezentujące odpowiednio szerokość oraz wysokość prostokąta, przez który obserwowana jest scena
+\item\textit{depth}: liczba rzeczywista reprezentująca odległość ogniska od płótna
+\item\textit{bgColor}: opcjonalny parametr oznaczający kolor tła. Domyślnie jest to kolor czarny
+\item\textit{rayDepth}: opcjonalny parametr określający maksymalną głębokość rekursji podczas śledzenia promieni. Domyślną wartością jest 4
 \end{itemize}
 \item\textbf{Źródła światła} (opcjonalne). Lista źródeł światła rozpoczynająca się słowem kluczowym \textit{lights}. Dostępne są następujące źródła światła:
 \begin{itemize}
 \item\textit{directional i c d}: kierunkowe źródło światła o intensywności wyznaczonej przez liczbę rzeczywistą \textit{i}, o kolorze \textit{c}, świecące w kierunku wskazywanym przez wektor \textit{d}
 \item\textit{spherical i c x}: punktowe źródło światła o intensywności \textit{i}, kolorze \textit{c}, znajdujące się w punkcie \textit{x}
 \end{itemize}
-\item\textbf{Obiekty} (opcjonalne). Lista znajdujących się na scenie obiektów. Każdy obiekt przedstawiony jest w postaci \textit{kształt powierzchnia}. Program udostępnia następujące kształty:
+\item\textbf{Obiekty} (opcjonalne). Lista znajdujących się na scenie obiektów, rozpoczynająca się słowem kluczowym \textit{objects}. Każdy obiekt przedstawiony jest w postaci \textit{kształt powierzchnia}. Program udostępnia następujące kształty:
 \begin{itemize}
 \item\textit{sphere x r}: kula o środku \textit{x} i promieniu \textit{r}
-\item\textit{plane x d}: płaszczyzna zawierająca punkt \textit{x} o wektorze normalnym równoległym do wektora \textit{d}
+\item\textit{plane x d}: płaszczyzna zawierająca punkt \textit{x} prostopadła do wektora \textit{d}
 \end{itemize}
 oraz następujące rodzaje powierzchni:
 \begin{itemize}
@@ -57,7 +62,7 @@ Plik zawiera definicje podstawowych typów danych wykorzystywanych w programie
 \begin{itemize}
 \item\textit{Vector} - typ danych reprezentujący wektory w przestrzeni trójwymiarowej.\\Konstruktor:
 \begin{itemize}
-\item\textit{Vector Double Double Double} - tworzy wektor o podanych współrzędnych
+\item\textit{Vector Double Double Double} - wektor zadany poprzez współrzędne
 \end{itemize}
 \item\textit{(+.) :: Vector -> Vector -> Vector} - operator dodawania wektorów
 \item\textit{(-.) :: Vector -> Vector -> Vector} - operator odejmowania wektorów
@@ -65,18 +70,18 @@ Plik zawiera definicje podstawowych typów danych wykorzystywanych w programie
 \item\textit{dot :: Vector -> Vector -> Double} - iloczyn skalarny wektorów
 \item\textit{sqVecLen :: Vector -> Double} - kwadrat długości danego wektora
 \item\textit{vecLen :: Vector -> Double} - długość danego wektora
-\item\textit{normalize :: Vector -> Vector} - normalizuje wektor, tzn. zwraca wektor o długości 1 zwrócony w tym samym kierunku co dany wektor
+\item\textit{normalize :: Vector -> Vector} - normalizuje wektor, tzn. zwraca wektor o długości 1 równoległy do danego
 \item\textit{Color t} - klasa reprezentacji kolorów
 \begin{itemize}
 \item\textit{cAdd :: t -> t -> t} - suma kolorów
 \item\textit{cTimes :: Double -> t -> t} - mnożenie koloru przez skalar
 \item\textit{cMult :: t -> t -> t} - iloczyn kolorów
-\item\textit{toWordList :: t -> [Word8]} - zamiana koloru na tablicę 4 wartości typu Word8, reprezentujących kolor w formacie RGBA32
+\item\textit{toWordList :: t -> [Word8]} - zamiana koloru na tablicę 4 wartości typu \textit{Word8}, reprezentujących kolor w formacie RGBA32
 \item\textit{black :: t, white :: t} - stałe reprezentujące odpowiednio czerń i biel
 \item Instancje: \textit{Double}, \textit{Vector}
 \end{itemize}
-\item\textit{Greyscale} - alias typu Double, reprezentacja odcieni szarości
-\item\textit{RGB} - alias typu Vector, reprezentacja kolorów w postaci RGB
+\item\textit{Greyscale} - alias typu \textit{Double}, reprezentacja odcieni szarości
+\item\textit{RGB} - alias typu \textit{Vector}, reprezentacja kolorów w postaci RGB
 \item\textit{makeRGB :: Double -> Double -> Double -> RGB} - alias konstruktora \textit{Vector}
 \item\textit{red :: RGB, green :: RGB, blue :: RGB, cyan :: RGB, magenta :: RGB, yellow :: RGB} - stałe reprezentujące odpowiednio czerwień, zieleń,  błękit, cyjan, fuksję i żółć
 \end{itemize}
@@ -91,7 +96,7 @@ Plik zawiera typy danych do reprezentacji geometrii obiektów w przestrzeni tró
 \item\textit{makeRay :: Vector -> Vector -> Ray} - normalizuje drugi argument, po czym wywołuje konstruktor \textit{Ray}
 \item\textit{getRayPoint :: Ray -> Double -> Vector} - \textit{getRayPoint r t} zwraca punkt otrzymany po podstawieniu wartości \textit{t} do równania opisującego promień \textit{r}
 \item\textit{reflectRay :: Vector -> Vector -> Ray -> Ray} - \textit{reflectRay x n r} zwraca promień o początku w punkcie \textit{x} (leżącym na promieniu \textit{r}), powstały poprzez odbicie promienia \textit{r} względem wektora normalnego \textit{n}
-\item\textit{Geometry} - typ danych reprezentujący geometrie obiektów w przestrzeni trójwymiarowej. Konstruktory:
+\item\textit{Geometry} - typ danych reprezentujący geometrie obiektów w przestrzeni trójwymiarowej.\\Konstruktory:
 \begin{itemize}
 \item\textit{Sphere Vector Double} - kula opisana przez jej środek oraz promień
 \item\textit{Plane Vector Vector} - płaszczyzna opisana przez jeden z jej punktów oraz wektor normalny
@@ -99,12 +104,12 @@ Plik zawiera typy danych do reprezentacji geometrii obiektów w przestrzeni tró
 \item\textit{makeSphere :: Vector -> Double -> Geometry} - alias konstruktora \textit{Sphere}
 \item\textit{makePlane :: Vector -> Vector -> Geometry} - normalizuje drugi argument, po czym wywołuje konstruktor \textit{Plane}
 \item\textit{normalVector :: Geometry -> Vector -> Vector} - wektor normalny prostopadły do powierzchni w danym punkcie
-\item\textit{intersect :: Ray -> Geometry -> [Double]} - zwraca listę wartości $t$, dla których dany promień, opisany równaniem $y = x+td$, przecina dany obiekt. Wywołanie funkcji \textit{getRayPoint} pozwala dokładnie wyznaczyć te punkty.
+\item\textit{intersect :: Ray -> Geometry -> [Double]} - zwraca listę wartości $t$, dla których dany promień, opisany równaniem $y = x+td$, przecina dany obiekt. Współrzędne tych punktów można wyznaczyć za pomocą funkcji \textit{getRayPoint}.
 \item\textit{reflect :: Geometry -> Vector -> Ray -> Ray} - \textit{reflect g x r} zwraca promień powstały po odbiciu promienia \textit{r} w punkcie \textit{x} należącym do obiektu \textit{g}
-\item\textit{LightSource t} - typ danych reprezentujący źródło światła, wykorzystujący reprezentację koloru \textit{t}. Konstruktory:
+\item\textit{LightSource t} - typ danych reprezentujący źródło światła, wykorzystujący reprezentację koloru \textit{t}.\\Konstruktory:
 \begin{itemize}
-\item\textit{Directional t Vector} - światło kierunkowe o określonym kolorze padające w kierunku określonym poprzez wektor normalny
-\item\textit{Spherical t Vector} - punktowe źródło światłą zdefiniowane poprzez jego kolor i położenie
+\item\textit{Directional t Vector} - światło kierunkowe o określonym kolorze padające w kierunku zadanym poprzez wektor normalny
+\item\textit{Spherical t Vector} - punktowe źródło światła zdefiniowane poprzez jego kolor i położenie
 \end{itemize}
 \item\textit{makeDirectional :: Color t => Double -> t -> Vector -> LightSource t} - \textit{makeDirectional i c d} tworzy kierunkowe źródło światła o intensywności \textit{i} oraz kolorze \textit{c}, świecące w kierunku wyznaczonym przez wektor \textit{d}
 \item\textit{makeSpherical :: Color t => Double -> t -> Vector -> LightSource t} - \textit{makeSpherical i c x} tworzy kierunkowe źródło światła o intensywności \textit{i} oraz kolorze \textit{c}, znajdujące się w punkcie \textit{x}
@@ -115,22 +120,22 @@ Plik zawiera typy danych do reprezentacji geometrii obiektów w przestrzeni tró
 \subsection{Scene.hs}
 Plik zawierający funkcje przeprowadzające renderowanie sceny
 \begin{itemize}
-\item\textit{render :: Color t => Scene t -> Image t} - główna funkcja do renderowania sceny
-\item\textit{Surface t} - typ danych reprezentujący powierzchnie, wykorzystujący reprezentację kolorów \textit{t}. Konstruktory:
+\item\textit{render :: Color t => Scene t -> Image t} - główna renderująca scenę
+\item\textit{Surface t} - typ danych reprezentujący powierzchnie, wykorzystujący reprezentację kolorów \textit{t}.\\Konstruktory:
 \begin{itemize}
 \item\textit{Diffusive t} - powierzchnia rozpraszająca światło, o określonym kolorze
 \item\textit{Reflective} - powierzchnia odbijająca światło
 \item\textit{Luminous t} - powierzchnia świecąca własnym światłem, o określonym kolorze
 \item\textit{Mixed [(Double, Surface t)]} - powierzchnia powstała poprzez zmieszanie powyższych rodzajów powierzchni w określonych proporcjach
 \end{itemize}
-\item\textit{Object t} - typ danych reprezentujący obiekty sceny. Konstruktor:
+\item\textit{Object t} - typ danych reprezentujący obiekty sceny.\\Konstruktor:
 \begin{itemize}
 \item\textit{Object \{
     geometry :: Geometry,
     surface :: Surface t
 \}} - obiekt zdefiniowany przez jego kształt i rodzaj powierzchni
 \end{itemize}
-\item\textit{Scene t} - typ danych przechowujący informacje o scenie. Konstruktor:
+\item\textit{Scene t} - typ danych przechowujący informacje o scenie.\\Konstruktor:
 \begin{itemize}
 \item\textit{Scene \{
     pxWidth :: Int,
@@ -144,7 +149,7 @@ Plik zawierający funkcje przeprowadzające renderowanie sceny
     objects :: [Object t]
 \}} - zbiór informacji opisujących scenę. Są to kolejno: wymiary gotowego obrazu, wymiary płótna na scenie, odległość ogniska od płótna, kolor tła, maksymalna głębokość rekursji dla promieni odbitych, lista źródeł światła oraz lista obiektów
 \end{itemize}
-\item\textit{Image t} - typ danych reprezentujący gotowy obraz. Konstruktor:
+\item\textit{Image t} - typ danych reprezentujący gotowy obraz.\\Konstruktor:
 \begin{itemize}
 \item\textit{Image \{
     imWidth :: Int,
@@ -152,9 +157,34 @@ Plik zawierający funkcje przeprowadzające renderowanie sceny
     imPixels :: [t]
 \}} - obraz opisany przez jego wymiary oraz zbiór pikseli w wybranej reprezentacji koloru
 \end{itemize}
-\item\textit{closestIntersect :: Ray -> [Object t] -> Maybe (Double, Object t)} - funkcja znajdująca najmniejsze $t > 0$ takie, że $x + td$ jest punktem przecięcia danego promienia z pewnym obiektem z danej listy oraz obiekt, z którym przecięcie w tym punkcie następuje. Gdy takie $t$ nie istnieje, zwracana jet wartość \textit{Nothing}
-\item\textit{traceRay :: Color t => Int -> t -> [LightSource t] -> [Object t] -> Ray -> t} - funkcja śledząca promień w celu ustalenia koloru badanego punktu obiektu. Jej argumenty to kolejno: maksymalna głębokość rekursji, kolor tła, lista źródeł światła, lista obiektów oraz badany promień
+\item\textit{closestIntersect :: Ray -> [Object t] -> Maybe (Double, Object t)} - znajduje najmniejsze $t > 0$ takie, że $x + td$ jest punktem przecięcia danego promienia z pewnym obiektem z danej listy oraz obiekt, z którym przecięcie w tym punkcie następuje. Gdy takie $t$ nie istnieje, zwracana jest wartość \textit{Nothing}
+\item\textit{traceRay :: Color t => Int -> t -> [LightSource t] -> [Object t] -> Ray -> t} - śledzi promień w celu ustalenia koloru badanego punktu obiektu. Jej argumenty to kolejno: maksymalna głębokość rekursji, kolor tła, lista źródeł światła, lista obiektów oraz badany promień
 \item\textit{traceShadow :: Color t => LightSource t -> Vector -> Vector -> [Object t] -> Ray -> t} - funkcja śledząca promień w celu ustalenia, czy dany punkt znajduje się w cieniu. Jej argumenty to kolejno: badane źródło światła, rozważany punkt, wektor normalny prostopadły do powierzchni w tym punkcie, lista obiektów oraz badane źródło światła
 \item\textit{makeRays :: Scene t -> [Ray]} - wyznacza listę promieni odpowiadających pikselom gotowego obrazu. Ich śledzenie pozwala utworzyć ten obraz
+\end{itemize}
+\subsection{SceneParser.hs}
+Plik zawiera definicję prostego języka dla biblioteki Parsec, używanego do wczytywania plików
+\begin{itemize}
+\item\textit{parseScene :: String -> String -> Either String (Scene RGB)} - w przypadku sukcesu zwraca scenę opisaną w parsowanym pliku, w przeciwnym wypadku zwraca informację o błędzie
+\item\textit{pInt :: Parser Int} - parsuje liczbę całkowitą
+\item\textit{pDouble :: Parser Double} - parsuje liczbę całkowitą lub zmiennoprzecinkową, w pierwszym przypadku otrzymana wartość konwertowana jest do typu \textit{Double}
+\item\textit{pMin :: (Num t, Ord t) => t -> Parser t -> Parser t} - \textit{pMin m p} zwraca większą spośród wartości \textit{m} oraz wartości będącej wynikiem działania parsera \textit{p}
+\item\textit{pPositive :: (Num t, Ord t) => Parser t -> Parser t} - funkcja równoważna wyrażeniu \textit{pMin 0}
+\item\textit{pVector :: Parser Vector} - parsuje wektor trójwymiarowy
+\item\textit{pRGB :: Parser RGB} - parsuje kolor w postaci RGB
+\item\textit{pLight :: Parser (LightSource RGB)} - parsuje pojedyncze źródło światła
+\item\textit{pLights :: Parser [LightSource RGB]} - parsuje listę źródeł światła
+\item\textit{pObject :: Parser (Object RGB)} - parsuje pojedynczy obiekt
+\item\textit{pObjects :: Parser [Object RGB]} - parsuje listę obiektów
+\item\textit{pGeometry :: Parser Geometry} - parsuje kształt obiektu
+\item\textit{pSurface :: Parser (Surface RGB)} - parsuje opis powierzchni obiektu
+\item\textit{pScene :: Parser (Scene RGB)} - parsuje scenę
+\end{itemize}
+\subsection{Main.hs}
+Plik zawiera główne funkcje programu związane z operacjami wejścia/wyjścia.
+\begin{itemize}
+\item\textit{imageToBmp :: Color t => Image t -> BMP} - zamienia obraz w wewnętrznym formacie programu na obraz w formacie używanym przez bibliotekę \textit{Codec.BMP}
+\item\textit{showImage :: Color t => String -> Image t -> IO ()} - wyświetla dany obraz oraz zapisuje go w formacie BMP
+\item\textit{main :: IO ()} - funkcja główna programu
 \end{itemize}
 \end{document}
