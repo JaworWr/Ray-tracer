@@ -1,9 +1,14 @@
+{-# LANGUAGE DeriveGeneric #-}
+
 module DataTypes where
 
 import Data.Word
+import GHC.Generics (Generic)
+import Control.DeepSeq (NFData)
 
 -- typ danych reprezentujący wektor w przestrzeni trójwymiarowej
-data Vector = Vector Double Double Double deriving (Show, Eq)
+data Vector = Vector Double Double Double deriving (Show, Eq, Generic)
+instance NFData Vector
 
 -- dodawanie wektorów
 infixl 6 +.

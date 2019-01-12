@@ -3,11 +3,14 @@ module Scene where
 import DataTypes
 import Geometry
 import Data.Maybe
+import Control.Parallel.Strategies
 
 -- funkcja renderująca scenę
-render :: Color t => Scene t -> Image t
-render s = Image (pxWidth s) (pxHeight s) $
-    map (traceRay (rayDepth s) (bgColor s) (lights s) (objects s)) (makeRays s)
+render :: (NFData t, Color t) => Scene t -> Image t
+render s = Image (pxWidth s) (pxHeight s) pixels where
+    pixel_comp =
+        map (traceRay (rayDepth s) (bgColor s) (lights s) (objects s)) (makeRays s)
+    pixels = pixel_comp `using` parList rdeepseq
 
 -- typ danych reprezentujący możliwe rodzaje powierzchni obiektów
 data Surface t =
