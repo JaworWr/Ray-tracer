@@ -30,16 +30,6 @@ class Geometry g where
     -- dla których promień x + t*d przecina dany obiekt
     intersect :: g -> Ray -> [Double]
 
--- -- typ danych reprezentujący dowolny obiekt
--- data GeometryT = ∀ g . (Show g, Geometry g) => GeometryT g
---
--- instance Geometry GeometryT where
---     normalVector (GeometryT g) = normalVector g
---     intersect r (GeometryT g) = intersect r g
---
--- instance Show GeometryT where
---     show (GeometryT g) = show g
-
 -- konkretne rodzaje obiektów
 -- sfera
 data Sphere = Sphere Vector Double deriving (Eq, Show)
