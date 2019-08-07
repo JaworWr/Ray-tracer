@@ -53,12 +53,16 @@ class Color t where
     -- mnożenie kolorów
     infixl 7 `cMult`
     cMult :: t -> t -> t
-    -- zamiana koloru n listę 4 wartości reprezentujących kolor w formacie RGBA32
+    -- zamiana koloru na listę 4 wartości reprezentujących kolor w formacie RGBA32
     toWordList :: t -> [Word8]
 
     -- stałe reprezentujące kolor czarny i biały
     black :: t
     white :: t
+
+-- pomocnicza funkcja przekształcająca kanał na słowo 8-bitowe
+channelToWord :: Double -> Word8
+channelToWord = round . (* 255) . max 0 . min 1
 
 -- typ danych reprezentujący odcienie szarości
 type Greyscale = Double
@@ -67,8 +71,8 @@ instance Color Double where
     cAdd = (+)
     cTimes = (*)
     cMult = (*)
-    toWordList x = [x', x', x', 1] where
-        x' = round . (* 255) . max 0 $ min 1 x
+    toWordList x = [xw, xw, xw, 1] where
+        xw = channelToWord x
 
     black = 0
     white = 1
@@ -84,7 +88,7 @@ instance Color Vector where
     cAdd = (+.)
     cTimes = times
     cMult (Vector r1 g1 b1) (Vector r2 g2 b2) = Vector (r1 * r2) (g1 * g2) (b1 * b2)
-    toWordList = (++ [255]) . map (round . (* 255) . max 0 . min 1) . toDoubleList where
+    toWordList = (++ [255]) . map channelToWord . toDoubleList where
          toDoubleList (Vector r g b) = [r, g, b]
 
     black = Vector 0 0 0
