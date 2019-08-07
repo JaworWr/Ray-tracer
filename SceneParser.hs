@@ -8,6 +8,7 @@ import Text.Parsec
 import Text.Parsec.Token
 import Text.Parsec.Language
 import Text.Parsec.String
+import Text.Parsec.Perm
 
 -- główna funkcja parsująca scenę
 parseScene :: String -> String -> Either String (Scene RGB)
@@ -80,7 +81,7 @@ pRGB = choice [
 
 -- parser źródeł światła
 pLights :: Parser [LightSource RGB]
-pLights = (pKw "lights" >> many pLight) <|> return []
+pLights = pKw "lights" >> many pLight
 
 -- parser pojedynczego źródła światła
 pLight :: Parser (LightSource RGB)
@@ -91,7 +92,7 @@ pLight = choice [
 
 -- parser obiektów
 pObjects :: Parser [Object RGB]
-pObjects = (pKw "objects" >> many pObject) <|> return []
+pObjects = pKw "objects" >> many pObject
 
 -- parser pojedynczego obiektu
 pObject :: Parser (Object RGB)
@@ -121,14 +122,14 @@ pSurface = choice [
 
 -- parser sceny
 pScene :: Parser (Scene RGB)
-pScene = Scene <$>
-    (pKw "imwidth" >> pPositive pInt) <*>
-    (pKw "imheight" >> pPositive pInt) <*>
-    (pKw "canvwidth" >> pPositive pDouble) <*>
-    (pKw "canvheight" >> pPositive pDouble) <*>
-    (pKw "depth" >> pMin eps pDouble) <*>
-    option black (pKw "bgcolor" >> pRGB) <*>
-    option 4 (pKw "rayDepth" >> pMin 1 pInt) <*>
+pScene = permute (Scene <$$>
+    (pKw "imwidth" >> pPositive pInt) <||>
+    (pKw "imheight" >> pPositive pInt) <||>
+    (pKw "canvwidth" >> pPositive pDouble) <||>
+    (pKw "canvheight" >> pPositive pDouble) <||>
+    (pKw "depth" >> pMin eps pDouble) <|?>
+    (black, pKw "bgcolor" >> pRGB) <|?>
+    (4, pKw "rayDepth" >> pMin 1 pInt)) <*>
     pLights <*>
     pObjects
 
