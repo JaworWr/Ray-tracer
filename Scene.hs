@@ -1,3 +1,6 @@
+{-# LANGUAGE UnicodeSyntax #-}
+{-# LANGUAGE ExistentialQuantification #-}
+
 module Scene where
 
 import DataTypes
@@ -21,10 +24,17 @@ data Surface t =
     deriving (Eq, Show)
 
 -- typ danych reprezentujący obiekty sceny
-data Object t = Object {
-    geometry :: Geometry,
-    surface :: Surface t
-} deriving (Eq, Show)
+data Object t = ∀ g . (Show g, Geometry g) => Object g (Surface t)
+
+surface :: Object t -> Surface t
+surface (Object _ s) = s
+
+instance Show t => Show (Object t) where
+    show (Object g s) = "Object " ++ show g ++ " " ++ show s
+
+instance Geometry (Object t) where
+    normalVector (Object g _) = normalVector g
+    intersect (Object g _) = intersect g
 
 -- typ danych reprezentujący scenę
 data Scene t = Scene {
@@ -37,14 +47,14 @@ data Scene t = Scene {
     rayDepth :: Int,
     lights :: [LightSource t],
     objects :: [Object t]
-} deriving (Eq, Show)
+} deriving (Show)
 
 -- typ danych reprezentujący obraz w postaci listy pikseli
 data Image t = Image {
     imWidth :: Int,
     imHeight :: Int,
     imPixels :: [t]
-} deriving (Eq, Show)
+} deriving (Show)
 
 -- funkcja znajdująca, o ile to możliwe, najmniejszą dodatnią wartość t,
 -- dla której promień x + t*d przecina przecina pewien obiekt sceny, a także ów obiekt
@@ -53,7 +63,7 @@ closestIntersect r = minIntersect
     . filter ((> 0) . fst)
     . concatMap pairWithIntersects
     where
-        pairWithIntersects o = map (\x -> (x, o)) $ intersect r $ geometry o
+        pairWithIntersects o = map (\x -> (x, o)) $ intersect o r
         minIntersect [] = Nothing
         minIntersect xs =
             Just $ foldl1 (\acc x -> if fst x < fst acc then x else acc) xs
@@ -63,7 +73,7 @@ traceRay :: Color t => Int -> t -> [LightSource t] -> [Object t] -> Ray -> t
 traceRay 0 bg _ _ _ = bg
 traceRay d bg ls xs r = maybe bg calcRGB m where
     m = closestIntersect r xs
-    calcRGB (t, o) = surfaceColor (geometry o) (getRayPoint r t) (surface o)
+    calcRGB (t, o) = surfaceColor o (getRayPoint r t) (surface o)
     surfaceColor g x (Diffusive c) = let n = normalVector g x in
         foldl cAdd black
             (map (\l -> traceShadow l x n xs (makeShadowRay n l x)) ls)

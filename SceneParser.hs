@@ -95,14 +95,20 @@ pObjects = (pKw "objects" >> many pObject) <|> return []
 
 -- parser pojedynczego obiektu
 pObject :: Parser (Object RGB)
-pObject = Object <$> pGeometry <*> pSurface
-
--- parser obiektu w przestrzeni trójwymiarowej
-pGeometry :: Parser Geometry
-pGeometry = choice [
-    pKw "sphere" >> makeSphere <$> pVector <*> pPositive pDouble,
-    pKw "plane" >> makePlane <$> pVector <*> pVector
+pObject = choice [
+    toObjectParser pSphere,
+    toObjectParser pPlane
     ]
+    where
+        toObjectParser p = Object <$> p <*> pSurface
+
+-- parser sfery
+pSphere :: Parser Sphere
+pSphere = pKw "sphere" >> makeSphere <$> pVector <*> pPositive pDouble
+
+-- parser płaszczyzny
+pPlane :: Parser Plane
+pPlane = pKw "plane" >> makePlane <$> pVector <*> pVector
 
 -- parser powierzchni obiektów
 pSurface :: Parser (Surface RGB)

@@ -22,40 +22,56 @@ getRayPoint (Ray o d) t = o +. t `times` d
 reflectRay :: Vector -> Vector -> Ray -> Ray
 reflectRay x n (Ray _ d) = makeRay (x +. eps `times` n) $ d -. 2 * (n `dot` d) `times` n
 
--- typ danych reprezentujący obiekty w przestrzeni trójwymiarowej
-data Geometry =
-    Sphere Vector Double |
-    Plane Vector Vector
-    deriving (Eq, Show)
+-- klasa obiektów w przestrzeni trójwymiarowej
+class Geometry g where
+    -- funkcja wyznaczająca wektor normalny do dango obiektu w danym punkcie
+    normalVector :: g -> Vector -> Vector
+    -- funkcja wyznaczająca listę wartości t
+    -- dla których promień x + t*d przecina dany obiekt
+    intersect :: g -> Ray -> [Double]
+
+-- -- typ danych reprezentujący dowolny obiekt
+-- data GeometryT = ∀ g . (Show g, Geometry g) => GeometryT g
+--
+-- instance Geometry GeometryT where
+--     normalVector (GeometryT g) = normalVector g
+--     intersect r (GeometryT g) = intersect r g
+--
+-- instance Show GeometryT where
+--     show (GeometryT g) = show g
+
+-- konkretne rodzaje obiektów
+-- sfera
+data Sphere = Sphere Vector Double deriving (Eq, Show)
 
 -- konstruktor sfery
-makeSphere :: Vector -> Double -> Geometry
+makeSphere :: Vector -> Double -> Sphere
 makeSphere = Sphere
+
+instance Geometry Sphere where
+    normalVector (Sphere c _) x = normalize (x -. c)
+    intersect (Sphere c r) (Ray o d)
+        | delta < 0 = []
+        | otherwise = [-doc - sqrt delta, -doc + sqrt delta]
+        where
+            doc = d `dot` (o -. c)
+            delta = doc * doc - sqVecLen (o -. c) + r * r
+
+-- płaszczyzna
+data Plane = Plane Vector Vector deriving (Eq, Show)
 
 -- konstruktor płaszczyzny, przyjmujący jej początek
 -- oraz wektor prostopadły (niekoniecznie normalny)
-makePlane :: Vector -> Vector -> Geometry
+makePlane :: Vector -> Vector -> Plane
 makePlane o d = Plane o (normalize d)
 
--- funkcja wyznaczająca wektor normalny do dango obiektu w danym punkcie
-normalVector :: Geometry -> Vector -> Vector
-normalVector (Sphere c _) x = normalize (x -. c)
-normalVector (Plane _ n) _ = n
-
--- funkcja wyznaczająca listę wartości t
--- dla których promień x + t*d przecina dany obiekt
-intersect :: Ray -> Geometry -> [Double]
-intersect (Ray o d) (Sphere c r)
-    | delta < 0 = []
-    | otherwise = [-doc - sqrt delta, -doc + sqrt delta]
-    where
-        doc = d `dot` (o -. c)
-        delta = doc * doc - sqVecLen (o -. c) + r * r
-intersect (Ray o d) (Plane po pd) =
-    [((po -. o) `dot` pd) / (d `dot` pd)]
+instance Geometry Plane where
+    normalVector (Plane _ n) _ = n
+    intersect (Plane po pd) (Ray o d) =
+        [((po -. o) `dot` pd) / (d `dot` pd)]
 
 -- funkcja wyznaczająca promień odbity w danym punkcie obiektu
-reflect :: Geometry -> Vector -> Ray -> Ray
+reflect :: Geometry g => g -> Vector -> Ray -> Ray
 reflect g x = reflectRay x (normalVector g x)
 
 -- typ danych reprezentujący źródło światła
