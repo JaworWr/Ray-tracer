@@ -1,9 +1,12 @@
+{-# LANGUAGE LambdaCase #-}
+
 module Main where
 
 import DataTypes
 import SceneParser
 import Scene
 import qualified Data.ByteString as BStr
+import Control.Monad.Except
 import System.Environment
 import System.IO.Error
 import Data.List
@@ -30,12 +33,15 @@ showImage name i = do
     G.display (G.InWindow name (imWidth i, imHeight i) (0, 0))
         G.black (G.bitmapOfBMP bmp)
 
+runRayTracer :: ExceptT String IO ()
+runRayTracer = do
+    args <- (fmap fst . uncons) <$> lift getArgs
+    path <- maybe (throwError "No input file specified") return args
+    s <- withExceptT show . ExceptT . tryIOError . readFile $ path
+    scene <- liftEither $ parseScene path s
+    lift . showImage path . render $ scene
+
 main :: IO ()
-main = do
-    args <- getArgs
-    if null args
-    then putStrLn "No input file specified"
-    else tryIOError (readFile $ head args) >>=
-        either print
-        (\s -> either putStrLn (showImage $ head args) $
-            render <$> parseScene (head args) s)
+main = runExceptT runRayTracer >>= \case
+    Left e -> putStrLn e
+    _ -> return ()
