@@ -3,3 +3,5 @@ dist
 *.txt
 *.bmp
 Ray-tracer
+.cabal-sandbox
+cabal.sandbox.config
