@@ -53,11 +53,15 @@ pDouble = do
 
 -- parsuje daną iczbę z minimalną wartością, w przypadku, gdy otrzymana liczba
 -- jest mniejsza, zwraca wartość minimalną
-pMin :: (Num t, Ord t) => t -> Parser t -> Parser t
-pMin m p = max m <$> p
+pMin :: (Show t, Ord t) => t -> Parser t -> Parser t
+pMin m p = do
+    x <- lookAhead p
+    if x < m
+        then fail ("expected a value greater then or equal to " ++ show m)
+        else p
 
 -- parsuje liczbę a z minimalną wartością 0
-pPositive :: (Num t, Ord t) => Parser t -> Parser t
+pPositive :: (Num t, Show t, Ord t) => Parser t -> Parser t
 pPositive = pMin 0
 
 -- parser wektorów
