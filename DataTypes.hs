@@ -90,6 +90,7 @@ type RGB = Vector
 makeRGB :: Double -> Double -> Double -> RGB
 makeRGB = Vector
 
+-- pomocnicza funkcja przekształcająca wektor na listę jego składowych
 vectorToDoubleList :: Vector -> [Double]
 vectorToDoubleList (Vector r g b) = [r, g, b]
 

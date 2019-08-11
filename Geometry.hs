@@ -74,6 +74,7 @@ data LightSource t =
     Spherical t Vector
     deriving (Eq, Show)
 
+-- kolor źródła światła
 lightSourceColor :: LightSource t -> t
 lightSourceColor (Directional c _) = c
 lightSourceColor (Spherical c _) = c

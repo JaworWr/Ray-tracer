@@ -70,6 +70,7 @@ validateSurface (Mixed ss) = mapM_ validateMixedSurfElem $ enumerate ss
 validateMixedSurfElem :: (Show t, Color t) => (Int, (Double, Surface t)) -> Either String ()
 validateMixedSurfElem (i, (w, s)) = do
     validateMinValue "mixed surface component weight" w 0
+        `catchError` throwMixedSurfElemError
     validateSurface s `catchError` throwMixedSurfElemError
     where
         invalidMixedSurfElemStr = "Mixed surface element #" ++ show i ++ ":\n"

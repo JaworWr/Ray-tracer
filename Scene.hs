@@ -26,9 +26,11 @@ data Surface t =
 -- typ danych reprezentujący obiekty sceny
 data Object t = ∀ g . (Show g, Geometry g) => Object g (Surface t)
 
+-- reprezentacja tekstowa geometrii obiektu
 showGeometry :: Object t -> String
 showGeometry (Object g _) = show g
 
+-- powierzchnia obiektu
 surface :: Object t -> Surface t
 surface (Object _ s) = s
 

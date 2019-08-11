@@ -13,7 +13,7 @@ import Control.Monad.Except
 
 -- główna funkcja parsująca scenę
 parseScene :: String -> String -> Either ParseError (Scene RGB)
-parseScene = parse pScene
+parseScene = parse pMain
 
 -- definicja językka opisującego scenę
 def = emptyDef {
