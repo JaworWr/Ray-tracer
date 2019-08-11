@@ -51,19 +51,6 @@ pDouble = do
         pOp = reservedOp tokenParser
         getSign = (pOp "-" >> return (-1)) <|> (optional (pOp "+") >> return 1)
 
--- parsuje daną iczbę z minimalną wartością, w przypadku, gdy otrzymana liczba
--- jest mniejsza, zwraca wartość minimalną
-pMin :: (Show t, Ord t) => t -> Parser t -> Parser t
-pMin m p = do
-    x <- lookAhead p
-    if x < m
-        then fail ("expected a value greater then or equal to " ++ show m)
-        else p
-
--- parsuje liczbę a z minimalną wartością 0
-pPositive :: (Num t, Show t, Ord t) => Parser t -> Parser t
-pPositive = pMin 0
-
 -- parser wektorów
 pVector :: Parser Vector
 pVector = Vector <$> pDouble <*> pDouble <*> pDouble <?> "vector"
@@ -79,7 +66,7 @@ pRGB = choice [
     pKw "cyan" >> return cyan,
     pKw "magenta" >> return magenta,
     pKw "yellow" >> return yellow,
-    makeRGB <$> pPositive pDouble <*> pPositive pDouble <*> pPositive pDouble
+    makeRGB <$> pDouble <*> pDouble <*> pDouble
     ] <?> "color"
 
 -- parser źródeł światła
@@ -89,8 +76,8 @@ pLights = pKw "lights" >> many pLight
 -- parser pojedynczego źródła światła
 pLight :: Parser (LightSource RGB)
 pLight = choice [
-    pKw "directional" >> makeDirectional <$> pPositive pDouble <*> pRGB <*> pVector,
-    pKw "spherical" >> makeSpherical <$> pPositive pDouble <*> pRGB <*> pVector
+    pKw "directional" >> makeDirectional <$> pDouble <*> pRGB <*> pVector,
+    pKw "spherical" >> makeSpherical <$> pDouble <*> pRGB <*> pVector
     ]
 
 -- parser obiektów
@@ -108,7 +95,7 @@ pObject = choice [
 
 -- parser sfery
 pSphere :: Parser Sphere
-pSphere = pKw "sphere" >> makeSphere <$> pVector <*> pPositive pDouble
+pSphere = pKw "sphere" >> makeSphere <$> pVector <*> pDouble
 
 -- parser płaszczyzny
 pPlane :: Parser Plane
@@ -126,13 +113,13 @@ pSurface = choice [
 -- parser sceny
 pScene :: Parser (Scene RGB)
 pScene = permute (Scene <$$>
-    (pKw "imwidth" >> pPositive pInt) <||>
-    (pKw "imheight" >> pPositive pInt) <||>
-    (pKw "canvwidth" >> pPositive pDouble) <||>
-    (pKw "canvheight" >> pPositive pDouble) <||>
-    (pKw "depth" >> pMin eps pDouble) <|?>
+    (pKw "imwidth" >> pInt) <||>
+    (pKw "imheight" >> pInt) <||>
+    (pKw "canvwidth" >> pDouble) <||>
+    (pKw "canvheight" >> pDouble) <||>
+    (pKw "depth" >> pDouble) <|?>
     (black, pKw "bgcolor" >> pRGB) <|?>
-    (4, pKw "rayDepth" >> pMin 1 pInt)) <*>
+    (4, pKw "rayDepth" >> pInt)) <*>
     pLights <*>
     pObjects
 

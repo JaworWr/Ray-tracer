@@ -4,6 +4,7 @@ module Main where
 
 import DataTypes
 import SceneParser
+import SceneValidator
 import Scene
 import qualified Data.ByteString as BStr
 import Control.Monad.Except
@@ -39,6 +40,7 @@ runRayTracer = do
     path <- maybe (throwError "No input file specified") return args
     s <- withExceptT show . ExceptT . tryIOError . readFile $ path
     scene <- withExceptT show . liftEither $ parseScene path s
+    liftEither $ validateScene scene
     lift . showImage path . render $ scene
 
 main :: IO ()
