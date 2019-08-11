@@ -9,12 +9,11 @@ import Text.Parsec.Token
 import Text.Parsec.Language
 import Text.Parsec.String
 import Text.Parsec.Perm
+import Control.Monad.Except
 
 -- główna funkcja parsująca scenę
-parseScene :: String -> String -> Either String (Scene RGB)
-parseScene name s = case parse pMain name s of
-    Left e -> Left $ show e
-    Right s -> return s
+parseScene :: String -> String -> Either ParseError (Scene RGB)
+parseScene = parse pScene
 
 -- definicja językka opisującego scenę
 def = emptyDef {

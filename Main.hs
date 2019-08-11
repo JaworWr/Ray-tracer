@@ -38,7 +38,7 @@ runRayTracer = do
     args <- (fmap fst . uncons) <$> lift getArgs
     path <- maybe (throwError "No input file specified") return args
     s <- withExceptT show . ExceptT . tryIOError . readFile $ path
-    scene <- liftEither $ parseScene path s
+    scene <- withExceptT show . liftEither $ parseScene path s
     lift . showImage path . render $ scene
 
 main :: IO ()
