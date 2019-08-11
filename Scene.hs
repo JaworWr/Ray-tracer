@@ -26,15 +26,19 @@ data Surface t =
 -- typ danych reprezentujący obiekty sceny
 data Object t = ∀ g . (Show g, Geometry g) => Object g (Surface t)
 
+showGeometry :: Object t -> String
+showGeometry (Object g _) = show g
+
 surface :: Object t -> Surface t
 surface (Object _ s) = s
 
 instance Show t => Show (Object t) where
-    show (Object g s) = "Object " ++ show g ++ " " ++ show s
+    show o = "Object " ++ showGeometry o ++ " " ++ show (surface o)
 
 instance Geometry (Object t) where
     normalVector (Object g _) = normalVector g
     intersect (Object g _) = intersect g
+    geometryValid (Object g _) = geometryValid g
 
 -- typ danych reprezentujący scenę
 data Scene t = Scene {

@@ -7,8 +7,11 @@ import GHC.Generics (Generic)
 import Control.DeepSeq (NFData)
 
 -- typ danych reprezentujący wektor w przestrzeni trójwymiarowej
-data Vector = Vector Double Double Double deriving (Show, Eq, Generic)
+data Vector = Vector Double Double Double deriving (Eq, Generic)
 instance NFData Vector
+
+instance Show Vector where
+    show (Vector x y z) = show (x, y, z)
 
 -- dodawanie wektorów
 infixl 6 +.
@@ -53,6 +56,8 @@ class Color t where
     -- mnożenie kolorów
     infixl 7 `cMult`
     cMult :: t -> t -> t
+    -- sprawdzenie czy kolor jest poprawnie zdefiniowany
+    colorValid :: t -> Bool
     -- zamiana koloru na listę 4 wartości reprezentujących kolor w formacie RGBA32
     toWordList :: t -> [Word8]
 
@@ -71,6 +76,7 @@ instance Color Double where
     cAdd = (+)
     cTimes = (*)
     cMult = (*)
+    colorValid x = x >= 0
     toWordList x = [xw, xw, xw, 1] where
         xw = channelToWord x
 
@@ -84,12 +90,15 @@ type RGB = Vector
 makeRGB :: Double -> Double -> Double -> RGB
 makeRGB = Vector
 
+vectorToDoubleList :: Vector -> [Double]
+vectorToDoubleList (Vector r g b) = [r, g, b]
+
 instance Color Vector where
     cAdd = (+.)
     cTimes = times
     cMult (Vector r1 g1 b1) (Vector r2 g2 b2) = Vector (r1 * r2) (g1 * g2) (b1 * b2)
-    toWordList = (++ [255]) . map channelToWord . toDoubleList where
-         toDoubleList (Vector r g b) = [r, g, b]
+    colorValid = all colorValid . vectorToDoubleList
+    toWordList = (++ [255]) . map channelToWord . vectorToDoubleList
 
     black = Vector 0 0 0
     white = Vector 1 1 1

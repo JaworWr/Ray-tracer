@@ -29,6 +29,8 @@ class Geometry g where
     -- funkcja wyznaczająca listę wartości t
     -- dla których promień x + t*d przecina dany obiekt
     intersect :: g -> Ray -> [Double]
+    -- sprawdzenie czy obiekt jest poprawnie zdefiniowany
+    geometryValid :: g -> Bool
 
 -- konkretne rodzaje obiektów
 -- sfera
@@ -46,6 +48,7 @@ instance Geometry Sphere where
         where
             doc = d `dot` (o -. c)
             delta = doc * doc - sqVecLen (o -. c) + r * r
+    geometryValid (Sphere _ r) = r >= 0
 
 -- płaszczyzna
 data Plane = Plane Vector Vector deriving (Eq, Show)
@@ -59,6 +62,7 @@ instance Geometry Plane where
     normalVector (Plane _ n) _ = n
     intersect (Plane po pd) (Ray o d) =
         [((po -. o) `dot` pd) / (d `dot` pd)]
+    geometryValid _ = True
 
 -- funkcja wyznaczająca promień odbity w danym punkcie obiektu
 reflect :: Geometry g => g -> Vector -> Ray -> Ray
@@ -69,6 +73,10 @@ data LightSource t =
     Directional t Vector |
     Spherical t Vector
     deriving (Eq, Show)
+
+lightSourceColor :: LightSource t -> t
+lightSourceColor (Directional c _) = c
+lightSourceColor (Spherical c _) = c
 
 -- konstruktor kierunkowego źródła światła
 makeDirectional :: Color t => Double -> t -> Vector -> LightSource t
