@@ -97,8 +97,8 @@ maybeThrow :: MonadError e m => e -> Maybe a -> m a
 maybeThrow e = maybe (throwError e) return
 
 -- główna funkcja obsługująca logikę programu
-runRayTracer :: ExceptT String IO ()
-runRayTracer = do
+run :: ExceptT String IO ()
+run = do
     progName <- lift getProgName
     (opts, path) <- withExceptT (++ usageStr progName)
         $ lift getArgs >>= liftEither . parseOptions
@@ -115,6 +115,6 @@ runRayTracer = do
                 . imageToBmp . renderValidated $ validated
 
 main :: IO ()
-main = runExceptT runRayTracer >>= \case
+main = runExceptT run >>= \case
     Left e -> putStrLn e
     _ -> return ()
