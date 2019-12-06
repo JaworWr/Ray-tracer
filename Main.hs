@@ -5,7 +5,7 @@ module Main where
 import DataTypes
 import SceneParser
 import SceneValidator
-import Scene
+import SceneRenderer
 import qualified Data.ByteString as BStr
 import Control.Monad.Except
 import System.Environment
@@ -16,8 +16,9 @@ import qualified Graphics.Gloss as G
 
 -- funkcja przekształcająca obraz do formatu BMP
 imageToBmp :: Color t => Image t -> BMP
-imageToBmp (Image w h c) =
-    packRGBA32ToBMP w h . BStr.pack $ concatMap toWordList c
+imageToBmp img =
+    packRGBA32ToBMP (imWidth img) (imHeight img) . BStr.pack $
+        concatMap toWordList (imPixels img)
 
 -- funkcja tworząca nazwę wyjściowego pliku na podstawie nazwy pliku wejściowego
 changeExt :: String -> String
@@ -40,8 +41,8 @@ runRayTracer = do
     path <- maybe (throwError "No input file specified") return args
     s <- withExceptT show . ExceptT . tryIOError . readFile $ path
     scene <- withExceptT show . liftEither $ parseScene path s
-    liftEither $ validateScene scene
-    lift . showImage path . render $ scene
+    validated <- liftEither $ validateScene scene
+    lift . showImage path . renderValidated $ validated
 
 main :: IO ()
 main = runExceptT runRayTracer >>= \case

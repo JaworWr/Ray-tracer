@@ -1,13 +1,17 @@
-module SceneValidator (validateScene) where
+module SceneValidator (validateScene, ValidatedScene(), scene) where
 
 import DataTypes
 import Geometry
 import Scene
 import Control.Monad.Except
 import Data.Char
+import SceneParser
+
+-- typ danych reprezentujący wyłącznie poprawnie zdefiniowane sceny
+newtype ValidatedScene t = ValidatedScene { scene :: Scene t }
 
 -- sprawdzenie czy scena jest poprawnie zdefiniowana
-validateScene :: (Show t, Color t) => Scene t -> Either String ()
+validateScene :: (Show t, Color t) => Scene t -> Either String (ValidatedScene t)
 validateScene s = do
     validateMinValue "image width" (pxWidth s) 0
     validateMinValue "image height" (pxHeight s) 0
@@ -18,6 +22,7 @@ validateScene s = do
     validateMinValue "ray depth" (rayDepth s) 0
     mapM_ validateLightSource (enumerate $ lights s)
     mapM_ validateObject (enumerate $ objects s)
+    return $ ValidatedScene s
 
 -- przyporządkowanie wartościom indeksów (począwszy od 1)
 enumerate :: [a] -> [(Int, a)]
