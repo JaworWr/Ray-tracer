@@ -6,7 +6,7 @@ import DataTypes
 import SceneParser
 import SceneValidator
 import SceneRenderer
-import Data.Either
+import Data.Maybe
 import qualified Data.ByteString as BStr
 import Control.Monad.Except
 import System.Environment
@@ -47,10 +47,12 @@ options = [
         "Show this help message"
     ]
 
+-- instrukcja użycia programu wyświetlana użytkownikowi
 usageStr :: String -> String
 usageStr progName = usageInfo header options where
     header = "Usage: " ++ progName ++ " [OPTION...] file"
 
+-- funkcja parsująca opcje
 parseOptions :: [String] -> Either String (Options, Maybe String)
 parseOptions args = (opts, ) <$> path where
     (fs, rs, errs) = getOpt Permute options args
@@ -71,24 +73,35 @@ changeExt s = case dropWhileEnd (/= '.') s of
     [] -> s ++ ".bmp"
     s' -> s' ++ "bmp"
 
+-- zwraca listę operacji do przeprowadzenia na obrazie
+optionsToBmpOps :: String -> Options -> [BMP -> IO ()]
+optionsToBmpOps fname opts = saveOp ++ showOp where
+    saveName = fromMaybe (changeExt fname) $ savePath opts
+    saveOp = [writeBMP saveName | saveImg opts]
+    showOp = [showImage fname | showImg opts]
+
+-- uruchamia wszystkie zadane operacje na obrazzzzie
+runBmpOps :: [BMP -> IO ()] -> BMP -> IO ()
+runBmpOps l bmp = mapM_ ($ bmp) l
+
 -- funkcja wyświetlająca utworzony obraz
 -- oraz zapisująca go w formacie bmp
-showImage :: Color t => String -> Image t -> IO ()
-showImage name i = do
-    let bmp = imageToBmp i
-    writeBMP (changeExt name) bmp
-    G.display (G.InWindow name (imWidth i, imHeight i) (0, 0))
-        G.black (G.bitmapOfBMP bmp)
+showImage :: String -> BMP -> IO ()
+showImage name bmp = G.display
+    (G.InWindow name (bmpDimensions bmp) (0, 0))
+    G.black
+    (G.bitmapOfBMP bmp)
 
 -- pomocnicza funkcja przekształcająca typ Maybe na instancję MonadError
 maybeThrow :: MonadError e m => e -> Maybe a -> m a
 maybeThrow e = maybe (throwError e) return
 
+-- główna funkcja obsługująca logikę programu
 runRayTracer :: ExceptT String IO ()
 runRayTracer = do
     progName <- lift getProgName
-    (opts, path) <- withExceptT (++ usageStr progName) $
-        lift getArgs >>= liftEither . parseOptions
+    (opts, path) <- withExceptT (++ usageStr progName)
+        $ lift getArgs >>= liftEither . parseOptions
     if showHelp opts
         then lift . putStrLn $ usageStr progName
         else do
@@ -98,7 +111,8 @@ runRayTracer = do
             s <- withExceptT show . ExceptT . tryIOError . readFile $ path
             scene <- withExceptT show . liftEither $ parseScene path s
             validated <- liftEither $ validateScene scene
-            lift . showImage path . renderValidated $ validated
+            lift . runBmpOps (optionsToBmpOps path opts)
+                . imageToBmp . renderValidated $ validated
 
 main :: IO ()
 main = runExceptT runRayTracer >>= \case
