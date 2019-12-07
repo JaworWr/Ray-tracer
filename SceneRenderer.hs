@@ -1,9 +1,8 @@
-module SceneRenderer (renderValidated, Image(), imWidth, imHeight, imPixels) where
+module SceneRenderer (renderValidated, Image, imWidth, imHeight, imPixels) where
 
 import DataTypes
 import Geometry
 import Scene
-import SceneValidator (ValidatedScene, scene)
 import Data.Maybe
 import Control.Parallel.Strategies
 
@@ -15,12 +14,11 @@ data Image t = Image {
 } deriving (Show)
 
 -- funkcja renderująca scenę
-renderValidated :: (NFData t, Color t) => ValidatedScene t -> Image t
-renderValidated vs = Image (pxWidth s) (pxHeight s) pixels where
+renderValidated :: (NFData t, Color t) => Scene Validated t -> Image t
+renderValidated s = Image (pxWidth s) (pxHeight s) pixels where
     pixel_comp =
         map (traceRay (rayDepth s) (bgColor s) (lights s) (objects s)) (makeRays s)
     pixels = pixel_comp `using` parList rdeepseq
-    s = scene vs
 
 -- funkcja znajdująca, o ile to możliwe, najmniejszą dodatnią wartość t,
 -- dla której promień x + t*d przecina przecina pewien obiekt sceny, a także ów obiekt
@@ -57,7 +55,7 @@ traceShadow l x n xs r = if isJust m then black else getLight l x n where
         \p -> if lIntersect l (fst p) x then return p else Nothing
 
 -- funkcja tworząca listę promieni odpowiadających pikselom tworzonego obrazu
-makeRays :: Scene t -> [Ray]
+makeRays :: Scene Validated t -> [Ray]
 makeRays s = makePixelRays 0 0 where
     l = -0.5 * scrWidth s
     b = -0.5 * scrHeight s

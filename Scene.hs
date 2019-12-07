@@ -1,12 +1,14 @@
-{-# LANGUAGE UnicodeSyntax #-}
-{-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE UnicodeSyntax, ExistentialQuantification #-}
 
 module Scene where
 
 import Geometry
 
+data Validated
+data NotValidated
+
 -- typ danych reprezentujący scenę
-data Scene t = Scene {
+data Scene v t = Scene {
     pxWidth :: Int,
     pxHeight :: Int,
     scrWidth :: Double,

@@ -10,8 +10,10 @@ import Text.Parsec.Language
 import Text.Parsec.String
 import Text.Parsec.Perm
 
+type ParsedScene = Scene NotValidated RGB
+
 -- główna funkcja parsująca scenę
-parseScene :: String -> String -> Either ParseError (Scene RGB)
+parseScene :: String -> String -> Either ParseError ParsedScene
 parseScene = parse pMain
 
 -- definicja językka opisującego scenę
@@ -110,7 +112,7 @@ pSurface = choice [
     ]
 
 -- parser sceny
-pScene :: Parser (Scene RGB)
+pScene :: Parser ParsedScene
 pScene = permute (Scene
         <$$> (pKw "imwidth" >> pInt)
         <||> (pKw "imheight" >> pInt)
@@ -123,5 +125,5 @@ pScene = permute (Scene
     <*> pLights
     <*> pObjects
 
-pMain :: Parser (Scene RGB)
+pMain :: Parser ParsedScene
 pMain = whiteSpace tokenParser >> pScene <* eof

@@ -81,7 +81,7 @@ optionsToBmpOps fname opts = saveOp ++ showOp where
     saveOp = [writeBMP saveName | saveImg opts]
     showOp = [showImage fname | showImg opts]
 
--- uruchamia wszystkie zadane operacje na obrazzzzie
+-- uruchamia wszystkie zadane operacje na obrazie
 runBmpOps :: [BMP -> IO ()] -> BMP -> IO ()
 runBmpOps l bmp = mapM_ ($ bmp) l
 
