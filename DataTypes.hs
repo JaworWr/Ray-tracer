@@ -97,7 +97,8 @@ vectorToDoubleList (Vector r g b) = [r, g, b]
 instance Color Vector where
     cAdd = (+.)
     cTimes = times
-    cMult (Vector r1 g1 b1) (Vector r2 g2 b2) = Vector (r1 * r2) (g1 * g2) (b1 * b2)
+    cMult (Vector r1 g1 b1) (Vector r2 g2 b2) =
+        Vector (r1 * r2) (g1 * g2) (b1 * b2)
     colorValid = all colorValid . vectorToDoubleList
     toWordList = (++ [255]) . map channelToWord . vectorToDoubleList
 

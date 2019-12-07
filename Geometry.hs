@@ -20,7 +20,8 @@ getRayPoint (Ray o d) t = o +. t `times` d
 -- funkcja obliczająca promień odbity do danego promienia w danym punkcie x
 -- względem wektora normalnego n
 reflectRay :: Vector -> Vector -> Ray -> Ray
-reflectRay x n (Ray _ d) = makeRay (x +. eps `times` n) $ d -. 2 * (n `dot` d) `times` n
+reflectRay x n (Ray _ d) = makeRay (x +. eps `times` n)
+    $ d -. 2 * (n `dot` d) `times` n
 
 -- klasa obiektów w przestrzeni trójwymiarowej
 class Geometry g where

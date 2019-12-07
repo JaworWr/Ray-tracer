@@ -1,4 +1,4 @@
-{-# LANGUAGE LambdaCase, TupleSections #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Main where
 
@@ -54,18 +54,19 @@ usageStr progName = usageInfo header options where
 
 -- funkcja parsująca opcje
 parseOptions :: [String] -> Either String (Options, Maybe String)
-parseOptions args = (opts, ) <$> path where
+parseOptions args = parsed where
     (fs, rs, errs) = getOpt Permute options args
     opts = foldl (flip id) defaultOpts fs
-    path = case errs of
-        [] -> return $ fst <$> uncons rs
-        _ -> throwError $ concat errs ++ "\n"
+    path = fst <$> uncons rs
+    parsed = case errs of
+        [] -> return (opts, path)
+        _ -> throwError $ unlines errs ++ "\n"
 
 -- funkcja przekształcająca obraz do formatu BMP
 imageToBmp :: Color t => Image t -> BMP
-imageToBmp img =
-    packRGBA32ToBMP (imWidth img) (imHeight img) . BStr.pack $
-        concatMap toWordList (imPixels img)
+imageToBmp img = packRGBA32ToBMP (imWidth img) (imHeight img)
+    . BStr.pack
+    $ concatMap toWordList (imPixels img)
 
 -- funkcja tworząca nazwę wyjściowego pliku na podstawie nazwy pliku wejściowego
 changeExt :: String -> String
@@ -103,16 +104,27 @@ run = do
     (opts, path) <- withExceptT (++ usageStr progName)
         $ lift getArgs >>= liftEither . parseOptions
     if showHelp opts
-        then lift . putStrLn $ usageStr progName
+        then lift
+            . putStrLn
+            $ usageStr progName
         else do
             path <- maybeThrow
                 ("No input file specified.\n\n" ++ usageStr progName)
                 path
-            s <- withExceptT show . ExceptT . tryIOError . readFile $ path
-            scene <- withExceptT show . liftEither $ parseScene path s
+            s <- withExceptT show
+                . ExceptT
+                . tryIOError
+                . readFile
+                $ path
+            scene <- withExceptT show
+                . liftEither
+                $ parseScene path s
             validated <- liftEither $ validateScene scene
-            lift . runBmpOps (optionsToBmpOps path opts)
-                . imageToBmp . renderValidated $ validated
+            lift
+                . runBmpOps (optionsToBmpOps path opts)
+                . imageToBmp
+                . renderValidated
+                $ validated
 
 main :: IO ()
 main = runExceptT run >>= \case

@@ -9,7 +9,6 @@ import Text.Parsec.Token
 import Text.Parsec.Language
 import Text.Parsec.String
 import Text.Parsec.Perm
-import Control.Monad.Except
 
 -- główna funkcja parsująca scenę
 parseScene :: String -> String -> Either ParseError (Scene RGB)
@@ -112,16 +111,17 @@ pSurface = choice [
 
 -- parser sceny
 pScene :: Parser (Scene RGB)
-pScene = permute (Scene <$$>
-    (pKw "imwidth" >> pInt) <||>
-    (pKw "imheight" >> pInt) <||>
-    (pKw "canvwidth" >> pDouble) <||>
-    (pKw "canvheight" >> pDouble) <||>
-    (pKw "depth" >> pDouble) <|?>
-    (black, pKw "bgcolor" >> pRGB) <|?>
-    (4, pKw "rayDepth" >> pInt)) <*>
-    pLights <*>
-    pObjects
+pScene = permute (Scene
+        <$$> (pKw "imwidth" >> pInt)
+        <||> (pKw "imheight" >> pInt)
+        <||> (pKw "canvwidth" >> pDouble)
+        <||> (pKw "canvheight" >> pDouble)
+        <||> (pKw "depth" >> pDouble)
+        <|?> (black, pKw "bgcolor" >> pRGB)
+        <|?> (4, pKw "rayDepth" >> pInt)
+    )
+    <*> pLights
+    <*> pObjects
 
 pMain :: Parser (Scene RGB)
 pMain = whiteSpace tokenParser >> pScene <* eof
