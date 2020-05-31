@@ -1,5 +1,5 @@
 Projekt
-dist
+dist*
 *.txt
 *.bmp
 Ray-tracer
